@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上传视频</title>
+    <link href="components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="components/jquery.bootgrid/dist/jquery.bootgrid.min.css"/>
+    <script src="components/modernizr/modernizr.js"></script>
+    <script src="components/moment/min/moment.min.js"></script>
+    <script src="components/moment/min/moment-with-locales.js"></script>
+</head>
+<body>
+<div>
+
+</div>
+<div>
+    <table id="grid" class="table table-condensed table-hover table-striped">
+        <thead>
+        <tr>
+            <th data-column-id="key">文件名</th>
+            <th data-column-id="mimeType">文件类型</th>
+            <th data-column-id="putTime" data-formatter="time" data-sortable="false">上传时间</th>
+            <th data-column-id="key" data-formatter="link" data-sortable="false">链接(1小时有效)</th>
+        </tr>
+        </thead>
+    </table>
+</div>
+<script src="components/jquery/dist/jquery.min.js"></script>
+<script src="components/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="components/jquery.bootgrid/dist/jquery.bootgrid.min.js"></script>
+<script>
+    $(function () {
+        $("#grid").bootgrid({
+            navigation: 0,
+            ajax: true,
+            rowCount: -1,
+            url: "/qiniu/origin",
+            sorting: false,
+            formatters: {
+                "time": function (column, row) {
+                    return moment(row.putTime / 10000).lang("zh-cn").format('lll');
+                },
+                "link": function (column, row) {
+                    return '<a href="' + row.link + '" target="_blank">' + '在线观看' + '</a>';
+                }
+            }
+
+        });
+    });
+</script>
+</body>
+</html>

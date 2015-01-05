@@ -1,0 +1,26 @@
+{
+  "name": "muster",
+  "version": "0.0.0",
+  "description": "muster ======",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/stevennuo/muster.git"
+  },
+  "author": "linuo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stevennuo/muster/issues"
+  },
+  "homepage": "https://github.com/stevennuo/muster",
+  "dependencies": {
+    "body-parser": "^1.10.1",
+    "express": "^4.10.7",
+    "qiniu": "^6.1.6",
+    "underscore": "^1.7.0"
+  },
+  "private": true
+}
