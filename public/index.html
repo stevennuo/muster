@@ -5,33 +5,150 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>上传视频</title>
     <link href="components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="components/jquery.bootgrid/dist/jquery.bootgrid.min.css"/>
+    <link href="components/jquery.bootgrid/dist/jquery.bootgrid.min.css" rel="stylesheet"/>
+    <link href="jQuery-File-Upload/css/jquery.fileupload.css" rel="stylesheet">
     <script src="components/modernizr/modernizr.js"></script>
     <script src="components/moment/min/moment.min.js"></script>
     <script src="components/moment/min/moment-with-locales.js"></script>
 </head>
 <body>
 <div>
+    <div class="col-xs-3">
+        <select id="op" class="form-control">
+            <option value="basic">基础片头</option>
+            <option value="advanced">特训/讲题片头</option>
+            <option value="extend">拓展片头</option>
+            <option>无片头</option>
+        </select>
+    </div>
 
+    <div class="col-xs-3">
+        <select id="ed" class="form-control">
+            <option value="algebra">代数片尾</option>
+            <option value="geometry">几何片尾</option>
+            <option disabled="disabled">---拓展片尾---</option>
+            <option value="linfeng">&nbsp;&nbsp;&nbsp;&nbsp;稀粥</option>
+            <option value="yifan">&nbsp;&nbsp;&nbsp;&nbsp;虾酱</option>
+            <option value="zuzhang">&nbsp;&nbsp;&nbsp;&nbsp;组长</option>
+            <option value="haotian">&nbsp;&nbsp;&nbsp;&nbsp;薯条儿</option>
+            <option value="ruochen">&nbsp;&nbsp;&nbsp;&nbsp;猪肉脯儿</option>
+            <option value="lixia">&nbsp;&nbsp;&nbsp;&nbsp;杀·非·桑尼</option>
+            <option>无片尾</option>
+        </select>
+    </div>
 </div>
 <div>
-    <table id="grid" class="table table-condensed table-hover table-striped">
+    <span class="btn btn-success fileinput-button">
+        <i class="glyphicon glyphicon-plus"></i>
+        <span>选择文件...</span>
+        <!-- The file input field used as target for the file upload widget -->
+        <input id="fileupload" type="file" name="files[]">
+    </span>
+    <br>
+    <br>
+    <!-- The global progress bar -->
+    <div id="progress" class="progress">
+        <div class="progress-bar progress-bar-success"></div>
+    </div>
+    <!-- The container for the uploaded files -->
+    <div id="files" class="files"></div>
+</div>
+<div>
+    <h3>本地正在处理的视频</h3>
+    <table id="compress" class="table table-condensed table-hover table-striped">
+        <thead>
+        <tr>
+            <th data-column-id="key">文件名</th>
+            <th data-column-id="progress" data-formatter="progress" data-sortable="false">进度</th>
+        </tr>
+        </thead>
+    </table>
+</div>
+<br>
+
+<div>
+    <h3>七牛原片</h3>
+    <table id="qiniu" class="table table-condensed table-hover table-striped">
         <thead>
         <tr>
             <th data-column-id="key">文件名</th>
             <th data-column-id="mimeType">文件类型</th>
-            <th data-column-id="putTime" data-formatter="time" data-sortable="false">上传时间</th>
+            <th data-column-id="putTime" data-formatter="time" data-sortable="false">上传到bucket的时间戳</th>
             <th data-column-id="key" data-formatter="link" data-sortable="false">链接(1小时有效)</th>
         </tr>
         </thead>
     </table>
 </div>
 <script src="components/jquery/dist/jquery.min.js"></script>
+<script src="jQuery-File-Upload/js/vendor/jquery.ui.widget.js"></script>
+<script src="jQuery-File-Upload/js/jquery.iframe-transport.js"></script>
+<script src="jQuery-File-Upload/js/jquery.fileupload.js"></script>
 <script src="components/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="components/jquery.bootgrid/dist/jquery.bootgrid.min.js"></script>
 <script>
     $(function () {
-        $("#grid").bootgrid({
+        'use strict';
+        // 上传
+        $('#fileupload').fileupload({
+            url: 'video/upload/',
+            dataType: 'json',
+            add: function (e, data) {
+                var op = document.getElementById("op");
+                var ed = document.getElementById("ed");
+                data.formData = {
+                    op: op.options[op.selectedIndex].value,
+                    ed: ed.options[ed.selectedIndex].value
+                };
+                data.submit();
+            },
+            done: function (e, data) {
+                $.each(data.result.files, function (index, file) {
+                    $('<p/>').text(file.name + '上传成功').prependTo('#files');
+                });
+            },
+            progressall: function (e, data) {
+                var progress = parseInt(data.loaded / data.total * 100, 10);
+                $('#progress .progress-bar').css(
+                        'width',
+                        progress + '%'
+                ).removeClass('progress-bar-danger').addClass('progress-bar-success')
+                console.log('all:' + progress);
+            },
+            fail: function (e, data) {
+                $.each(data.files, function (index, file) {
+                    $('<p/>').text(file.name + '上传失败').prependTo('#files');
+                });
+                $('#progress .progress-bar').css(
+                        'width',
+                        '50%'
+                ).removeClass('progress-bar-success').addClass('progress-bar-danger')
+            }
+        });
+
+        // 压缩进度
+        $("#compress").bootgrid({
+            navigation: 0,
+            ajax: true,
+            rowCount: -1,
+            url: "/video/compress",
+            sorting: false,
+            formatters: {
+                "progress": function (column, row) {
+                    switch (row.progress) {
+                        case 'compress':
+                            return '视频压缩';
+                        case 'sync':
+                            return '网络同步';
+                        default:
+                            return '未知状态';
+                    }
+                }
+            }
+
+        });
+
+        // 七牛原片
+        $("#qiniu").bootgrid({
             navigation: 0,
             ajax: true,
             rowCount: -1,
@@ -39,7 +156,7 @@
             sorting: false,
             formatters: {
                 "time": function (column, row) {
-                    return moment(row.putTime / 10000).lang("zh-cn").format('lll');
+                    return moment(row.putTime / 10000).locale("zh-cn").format('lll');
                 },
                 "link": function (column, row) {
                     return '<a href="' + row.link + '" target="_blank">' + '在线观看' + '</a>';
