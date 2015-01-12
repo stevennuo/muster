@@ -15,25 +15,11 @@
 <div>
     <div class="col-xs-3">
         <select id="op" class="form-control">
-            <option value="basic">基础片头</option>
-            <option value="advanced">特训/讲题片头</option>
-            <option value="extend">拓展片头</option>
-            <option>无片头</option>
         </select>
     </div>
 
     <div class="col-xs-3">
         <select id="ed" class="form-control">
-            <option value="algebra">代数片尾</option>
-            <option value="geometry">几何片尾</option>
-            <option disabled="disabled">---拓展片尾---</option>
-            <option value="linfeng">&nbsp;&nbsp;&nbsp;&nbsp;稀粥</option>
-            <option value="yifan">&nbsp;&nbsp;&nbsp;&nbsp;虾酱</option>
-            <option value="zuzhang">&nbsp;&nbsp;&nbsp;&nbsp;组长</option>
-            <option value="haotian">&nbsp;&nbsp;&nbsp;&nbsp;薯条儿</option>
-            <option value="ruochen">&nbsp;&nbsp;&nbsp;&nbsp;猪肉脯儿</option>
-            <option value="lixia">&nbsp;&nbsp;&nbsp;&nbsp;杀·非·桑尼</option>
-            <option>无片尾</option>
         </select>
     </div>
 </div>
@@ -88,6 +74,41 @@
 <script>
     $(function () {
         'use strict';
+        // 读取片头片尾
+        $('#op').add('#ed').empty()
+        $.ajax({
+            type: "GET",
+            url: "/video/opeds",
+            success: function (data) {
+                // Parse the returned json data
+                // Use jQuery's each to iterate over the opts value
+                $.each(data.ops, function (i, d) {
+                    if (!d.ops) {
+                        $('#op').append('<option value="' + d.value + '">' + d.name + '</option>');
+                    } else {
+                        $('#op').append('<option disabled="disabled">----' + d.name + '----</option>');
+                        $.each(d.ops, function (i, s) {
+                            $('#op').append('<option value="' + s.value + '">&nbsp;&nbsp;&nbsp;&nbsp;'
+                                    + s.name + '</option>');
+                        });
+                    }
+                });
+
+                $.each(data.eds, function (i, d) {
+                    if (!d.eds) {
+                        $('#ed').append('<option value="' + d.value + '">' + d.name + '</option>');
+                    } else {
+                        $('#ed').append('<option disabled="disabled">----' + d.name + '----</option>');
+                        $.each(d.eds, function (i, s) {
+                            $('#ed').append('<option value="' + s.value + '">&nbsp;&nbsp;&nbsp;&nbsp;'
+                                    + s.name + '</option>');
+                        });
+                    }
+                });
+            }
+        });
+
+
         // 上传
         $('#fileupload').fileupload({
             url: 'video/upload/',
