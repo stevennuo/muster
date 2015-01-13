@@ -8,7 +8,7 @@ var fs = require('fs');
 var PRIVATE = require('./config/private')
 
 var AND = ' && ';
-var FFMPEG = ' ./ffmpeg ';
+var FFMPEG = ' ' + PRIVATE.dir.ffmpeg + 'ffmpeg';
 
 //前面有可能跟路径不能带空格
 var h = function (d) {
