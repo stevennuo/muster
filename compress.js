@@ -51,10 +51,10 @@ var LOOP = function (A, f, param1, param2) {
 
 video = {
     ULTRAFAST: 'ultrafast',
-    ULTRASLOW: 'ultraslow',
+    VERYSLOW: 'veryslow',
     param: function (w, h, sw, sh) {
         return '-vf setsar=sar=' + sw + '/' + sh + ',setdar=dar=16/9,scale=' + w + 'x' + h
-            + ' -pix_fmt yuv420p -c:v libx264 -r 25 -benchmark -threads 0 -preset ' + video.ULTRASLOW;
+            + ' -pix_fmt yuv420p -c:v libx264 -r 25 -benchmark -threads 0 -preset ' + video.VERYSLOW;
     }
 };
 
