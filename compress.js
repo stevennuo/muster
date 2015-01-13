@@ -52,27 +52,27 @@ var LOOP = function (A, f, param1, param2) {
 video = {
     ULTRAFAST: 'ultrafast',
     VERYSLOW: 'veryslow',
-    param: function (w, h, sw, sh) {
+    param: function (w, h, sw, sh, crf) {
         return '-vf setsar=sar=' + sw + '/' + sh + ',setdar=dar=16/9,scale=' + w + 'x' + h
-            + ' -pix_fmt yuv420p -c:v libx264 -r 25 -benchmark -threads 0 -preset ' + video.VERYSLOW;
+            + ' -crf ' + crf +' -pix_fmt yuv420p -c:v libx264 -r 25 -benchmark -threads 0 -preset ' + video.VERYSLOW;
     }
 };
 
 audio = {
     param: function (a, b, vbr) {
         //TODO: vba need compilation
-        return ' -c:a libfdk_aac -ar ' + a + ' -b:a ' + b + 'k ';
+        return ' -c:a libfdk_aac -ar ' + a + ' -b:a ' + b + 'k -movflags +faststart ';
     }
 };
 
 origin = {
-    ver: function (F, w, h, sw, sh, a, b, vbr) {
-        return  video.param(w, h, sw, sh) + audio.param(a, b, vbr) + F.origin;
+    ver: function (F, w, h, sw, sh, crf, a, b, vbr) {
+        return  video.param(w, h, sw, sh, crf) + audio.param(a, b, vbr) + F.origin;
     },
     generate: function (H, M, L) {
-        return this.ver(H, 1280, 720, 1, 1, 48000, 128)
-            + this.ver(M, 854, 480, 1280, 1281, 44100, 96)
-            + this.ver(L, 480, 270, 1, 1, 22050, 64) + AND;
+        return this.ver(H, 1280, 720, 1, 1, 18, 48000, 128)
+            + this.ver(M, 854, 480, 1280, 23, 1281, 44100, 96)
+            + this.ver(L, 480, 270, 1, 1, 25, 22050, 64) + AND;
     }
 };
 
@@ -110,7 +110,7 @@ exports.oped = oped;
 concat = {
     concat: function (F, oped) {
         return FFMPEG + '-y -f concat -i ' + F.compo + ' -c copy -metadata "'
-            + oped.metadata() + '" ' + F.output;
+            + oped.metadata() + '" -movflags +faststart ' + F.output;
     },
 
     cmd: function (A, oped) {
