@@ -52,26 +52,27 @@ var LOOP = function (A, f, param1, param2) {
 video = {
     ULTRAFAST: 'ultrafast',
     ULTRASLOW: 'ultraslow',
-    param: function (w, h) {
-        return '-vf setsar=sar=1:1,setdar=dar=16/9  -c:v libx264 -r 25 -s ' + w + 'x' + h + ' -benchmark -threads 0 -preset ' + video.ULTRAFAST;
+    param: function (w, h, sw, sh) {
+        return '-vf setsar=sar=' + sw + '/' + sh + ',setdar=dar=16/9,scale=' + w + 'x' + h
+            + ' -pix_fmt yuv420p -c:v libx264 -r 25 -benchmark -threads 0 -preset ' + video.ULTRASLOW;
     }
 };
 
 audio = {
     param: function (a, b, vbr) {
         //TODO: vba need compilation
-        return ' -strict -2 -ar ' + a + ' -b:a ' + b + 'k ';
+        return ' -c:a libfdk_aac -ar ' + a + ' -b:a ' + b + 'k ';
     }
 };
 
 origin = {
-    ver: function (F, w, h, a, b, vbr) {
-        return  video.param(w, h) + audio.param(a, b, vbr) + F.origin;
+    ver: function (F, w, h, sw, sh, a, b, vbr) {
+        return  video.param(w, h, sw, sh) + audio.param(a, b, vbr) + F.origin;
     },
     generate: function (H, M, L) {
-        return this.ver(H, 1280, 720, 48000, 128)
-            + this.ver(M, 854, 480, 44100, 96)
-            + this.ver(L, 480, 270, 22050, 64) + AND;
+        return this.ver(H, 1280, 720, 1, 1, 48000, 128)
+            + this.ver(M, 854, 480, 1280, 1281, 44100, 96)
+            + this.ver(L, 480, 270, 1, 1, 22050, 64) + AND;
     }
 };
 
@@ -93,7 +94,7 @@ bash = {
     }
 };
 
-var oped = function() {
+var oped = function () {
     this.op_name = '';
     this.op_duration = 0;
     this.ed_name = '';
@@ -162,24 +163,24 @@ command = {
 };
 
 var file = {
-    content: function(opedDir, inputDir, oe, v){
+    content: function (opedDir, inputDir, oe, v) {
         var f;
         var VMP4 = v + '.mp4\n';
-        if(oe.op_name != 'null')
+        if (oe.op_name != 'null')
             f = 'file ' + opedDir + oe.op_name + VMP4;
         else
             f = ''
 
         f = f + 'file ' + inputDir + VMP4;
 
-        if(oe.ed_name != 'null')
+        if (oe.ed_name != 'null')
             f = f + 'file ' + opedDir + oe.ed_name + VMP4;
         else
             f = f;
         return f;
     },
 
-    write: function(inputPath, opedDir, oped){
+    write: function (inputPath, opedDir, oped) {
         var inputDir = path.dirname(inputPath) + '/';
         fs.writeFileSync(inputDir + 'h.list', this.content(opedDir, inputDir, oped, 'h'));
         fs.writeFileSync(inputDir + 'm.list', this.content(opedDir, inputDir, oped, 'm'));
