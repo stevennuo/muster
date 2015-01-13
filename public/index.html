@@ -84,11 +84,11 @@
                 // Use jQuery's each to iterate over the opts value
                 $.each(data.ops, function (i, d) {
                     if (!d.ops) {
-                        $('#op').append('<option value="' + d.value + '">' + d.name + '</option>');
+                        $('#op').append('<option name="' + d.ab + '" duration=' + d.duration +'>' + d.name + '</option>');
                     } else {
                         $('#op').append('<option disabled="disabled">----' + d.name + '----</option>');
                         $.each(d.ops, function (i, s) {
-                            $('#op').append('<option value="' + s.value + '">&nbsp;&nbsp;&nbsp;&nbsp;'
+                            $('#op').append('<option name="' + s.ab + '" duration=' + s.duration +'>&nbsp;&nbsp;&nbsp;&nbsp;'
                                     + s.name + '</option>');
                         });
                     }
@@ -96,11 +96,11 @@
 
                 $.each(data.eds, function (i, d) {
                     if (!d.eds) {
-                        $('#ed').append('<option value="' + d.value + '">' + d.name + '</option>');
+                        $('#ed').append('<option name="' + d.ab + '" duration=' + d.duration +'>' + d.name + '</option>');
                     } else {
                         $('#ed').append('<option disabled="disabled">----' + d.name + '----</option>');
                         $.each(d.eds, function (i, s) {
-                            $('#ed').append('<option value="' + s.value + '">&nbsp;&nbsp;&nbsp;&nbsp;'
+                            $('#ed').append('<option name="' + s.ab + '" duration=' + s.duration +'>&nbsp;&nbsp;&nbsp;&nbsp;'
                                     + s.name + '</option>');
                         });
                     }
@@ -114,11 +114,15 @@
             url: 'video/upload/',
             dataType: 'json',
             add: function (e, data) {
-                var op = document.getElementById("op");
-                var ed = document.getElementById("ed");
+                var opl = document.getElementById("op");
+                var edl = document.getElementById("ed");
+                var op =  opl.options[opl.selectedIndex];
+                var ed =  edl.options[edl.selectedIndex];
                 data.formData = {
-                    op: op.options[op.selectedIndex].value,
-                    ed: ed.options[ed.selectedIndex].value
+                    op_name:        op.getAttribute('name'),
+                    op_duration:    op.getAttribute('duration'),
+                    ed_name:        ed.getAttribute('name'),
+                    ed_duration:    ed.getAttribute('duration')
                 };
                 data.submit();
             },
@@ -133,7 +137,7 @@
                         'width',
                         progress + '%'
                 ).removeClass('progress-bar-danger').addClass('progress-bar-success')
-                console.log('all:' + progress);
+//                console.log('all:' + progress);
             },
             fail: function (e, data) {
                 $.each(data.files, function (index, file) {
@@ -151,7 +155,7 @@
             navigation: 0,
             ajax: true,
             rowCount: -1,
-            url: "/video/compress",
+            url: "/video/compressing",
             sorting: false,
             formatters: {
                 "progress": function (column, row) {
@@ -173,17 +177,24 @@
             navigation: 0,
             ajax: true,
             rowCount: -1,
-            url: "/qiniu/origin",
+            url: "/qiniu/list",
             sorting: false,
             formatters: {
                 "time": function (column, row) {
                     return moment(row.putTime / 10000).locale("zh-cn").format('lll');
                 },
                 "link": function (column, row) {
-                    return '<a href="' + row.link + '" target="_blank">' + '在线观看' + '</a>';
+                    return  '<a href="/qiniu/link/origin/'  + row.key + '" target="_blank"> ' + '线上原片' + ' </a>' +
+                            '<a href="/local/origin/'       + row.key + '" target="_blank"> ' + '本地原片' + ' </a>' +
+                            '<a href="/local/high/'         + row.key + '" target="_blank"> ' + '本地高清' + ' </a>' +
+                            '<a href="/local/medium/'       + row.key + '" target="_blank"> ' + '本地中清' + ' </a>' +
+                            '<a href="/local/low/'          + row.key + '" target="_blank"> ' + '本地低清' + ' </a>';
+                    //防盗链访问不了
+//                            '<a href="http://7u2j9w.com2.z0.glb.qiniucdn.com/' + row.key + '" target="_blank">' + '高清' + '</a>' +
+//                            '<a href="http://7u2j9x.com2.z0.glb.qiniucdn.com/' + row.key + '" target="_blank">' + '中清' + '</a>' +
+//                            '<a href="gttp://7u2j9y.com2.z0.glb.qiniucdn.com/' + row.key + '" target="_blank">' + '低清' + '</a>';
                 }
             }
-
         });
     });
 </script>

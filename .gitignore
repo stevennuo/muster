@@ -36,3 +36,6 @@ config/private.js
 
 # Bower
 public/components/
+
+# Sync json file
+qiniusync/

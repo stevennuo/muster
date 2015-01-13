@@ -20,8 +20,10 @@
     "body-parser": "^1.10.1",
     "express": "^4.10.7",
     "formidable": "^1.0.16",
+    "moment": "^2.9.0",
     "qiniu": "^6.1.6",
-    "underscore": "^1.7.0"
+    "underscore": "^1.7.0",
+    "walk": "^2.3.9"
   },
   "private": true
 }

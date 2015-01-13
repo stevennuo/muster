@@ -53,7 +53,7 @@ video = {
     ULTRAFAST: 'ultrafast',
     ULTRASLOW: 'ultraslow',
     param: function (w, h) {
-        return '-vf setsar=sar=1:1,setdar=16:9  -c:v libx264 -r 25 -s ' + w + '*' + h + ' -benchmark -threads 0 -preset ' + video.ULTRAFAST;
+        return '-vf setsar=sar=1:1,setdar=dar=16/9  -c:v libx264 -r 25 -s ' + w + '*' + h + ' -benchmark -threads 0 -preset ' + video.ULTRAFAST;
     }
 };
 
