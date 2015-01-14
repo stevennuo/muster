@@ -90,7 +90,7 @@ bash = {
         return ' cp ' + F.origin + F.output;
     },
     mvO2T: function (F, target, fileName) {
-        return ' mv ' + F.output + target + F.target + fileName;
+        return ' mv ' + F.output + '"' + target + F.target + fileName + '"';
     }
 };
 
@@ -141,7 +141,7 @@ command = {
 
     mv: function (A, target, fileName) {
         // origin h
-        var ret = bash.cp(A[0].output, target + 'origin/' + fileName) + AND;
+        var ret = bash.cp(A[0].output, '"'+target + 'origin/' + fileName+'"') + AND;
         // high/medium/low
         ret = ret + LOOP(A, bash.mvO2T, target, fileName);
         return ret;
@@ -156,8 +156,7 @@ command = {
 
         // output: h.mp4 m.mp4 l.mp4
 
-        var env = 'FFREPORT="file=\''+ PRIVATE.dir.log + 'ffmpeg-$(date +%Y%m%s).log\'"';
-        var ret = env + ffmpeg.input(p) + origin.generate(H, M, L);
+        var ret = ffmpeg.input(p) + origin.generate(H, M, L);
         // output: outputh.mp4 outputm.mp4 outputl.mp4
         ret = ret + this.addOped(A, oe);
         // output: rsync 4 folders
