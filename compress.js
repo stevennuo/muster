@@ -109,7 +109,7 @@ exports.oped = oped;
 
 concat = {
     concat: function (F, oped) {
-        return FFMPEG + '-y -f concat -i ' + F.compo + ' -c copy -metadata "'
+        return FFMPEG + '-y -f concat -i ' + F.compo + ' -c copy -metadata comment="'
             + oped.metadata() + '" -movflags +faststart ' + F.output;
     },
 
@@ -123,7 +123,7 @@ ffmpeg = {
         return FFMPEG + '-y -i "' + path + '" ';
     },
     streamCopy: function(F, oped) {
-        return FFMPEG + '-y -i "' + F.compo + ' -c copy -metadata "'
+        return FFMPEG + '-y -i "' + F.origin + '" -c copy -metadata comment="'
             + oped.metadata() + '" -movflags +faststart ' + F.output;
     }
 };
