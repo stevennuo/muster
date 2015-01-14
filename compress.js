@@ -123,7 +123,7 @@ ffmpeg = {
         return FFMPEG + '-y -i "' + path + '" ';
     },
     streamCopy: function(F, oped) {
-        return FFMPEG + '-y -i "' + F.origin + '" -c copy -metadata comment="'
+        return FFMPEG + '-y -i ' + F.origin + ' -c copy -metadata comment="'
             + oped.metadata() + '" -movflags +faststart ' + F.output;
     }
 };
