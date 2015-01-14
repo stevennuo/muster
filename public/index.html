@@ -184,7 +184,8 @@
                     return moment(row.putTime / 10000).locale("zh-cn").format('lll');
                 },
                 "link": function (column, row) {
-                    return  '<a href="/qiniu/link/origin/'  + row.key + '" target="_blank"> ' + '线上原片' + ' </a>' +
+                    return  '<a href="/qiniu/info/origin/'  + row.key + '" target="_blank"> ' + 'metadata' + ' </a>' +
+                            '<a href="/qiniu/link/origin/'  + row.key + '" target="_blank"> ' + '线上原片' + ' </a>' +
                             '<a href="/local/origin/'       + row.key + '" target="_blank"> ' + '本地原片' + ' </a>' +
                             '<a href="/local/high/'         + row.key + '" target="_blank"> ' + '本地高清' + ' </a>' +
                             '<a href="/local/medium/'       + row.key + '" target="_blank"> ' + '本地中清' + ' </a>' +

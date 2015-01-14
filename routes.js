@@ -31,6 +31,15 @@ var generateURL = function (ver, key) {
         '&token=' + token;
 }
 
+var generateInfoURL = function (ver, key) {
+    var deadline = Math.floor(Date.now() / 1000) + ver.expiration;
+    var link = encodeURI('http://' + ver.domain + '/' + key + '?avinfo&e=' + deadline);
+    var token = qiniu.conf.ACCESS_KEY + ':' +
+        qiniu.util.base64ToUrlSafe(qiniu.util.hmacSha1(link, qiniu.conf.SECRET_KEY));
+    return link +
+        '&token=' + token;
+}
+
 var generateCompressScripts = function (path, oped) {
     var cmd = compress.generate(path, oped);
     console.log(cmd);
@@ -109,6 +118,13 @@ module.exports = function (app) {
 //        console.log(req.param('ver'));
 //        console.log(req.param('key'));
         var l = generateURL(PRIVATE.qiniu['origin'], req.param('key'), qiniu);
+        res.redirect(l);
+    });
+
+    app.get('/qiniu/info/origin/:key', function (req, res) {
+//        console.log(req.param('ver'));
+//        console.log(req.param('key'));
+        var l = generateInfoURL(PRIVATE.qiniu['origin'], req.param('key'), qiniu);
         res.redirect(l);
     });
 
