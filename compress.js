@@ -61,7 +61,7 @@ video = {
 audio = {
     param: function (a, b, vbr) {
         //TODO: vba need compilation
-        return ' -c:a libfdk_aac -ar ' + a + ' -b:a ' + b + 'k -movflags +faststart ';
+        return ' -c:a libfdk_aac -ar ' + a + ' -b:a ' + b + 'k ';
     }
 };
 
@@ -121,6 +121,10 @@ concat = {
 ffmpeg = {
     input: function (path) {
         return FFMPEG + '-y -i "' + path + '" ';
+    },
+    streamCopy: function(F, oped) {
+        return FFMPEG + '-y -i "' + F.compo + ' -c copy -metadata "'
+            + oped.metadata() + '" -movflags +faststart ' + F.output;
     }
 };
 
@@ -128,7 +132,7 @@ command = {
 
     addOped: function (A, oe) {
         if (oe.op_name == 'null' && oe.ed_name == 'null') {
-            return LOOP(A, bash.cpO2O);
+            return LOOP(A, ffmpeg.streamCopy, oe);
         }
         else {
             return concat.cmd(A, oe);

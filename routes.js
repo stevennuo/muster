@@ -73,7 +73,7 @@ module.exports = function (app) {
             file.path = form.uploadDir + file.name;
 
             ret.files.push({name: file.name, path: file.path});
-            if (_existsSync(file.path)) {
+            if (_existsSync(file.path) || _existsSync(PRIVATE.dir.rsync + 'origin/' + file.name)) {
                 ret.files[0].error = '文件已存在，不能覆盖';
                 console.log(ret.files[0].error);
             }
@@ -176,7 +176,7 @@ module.exports = function (app) {
 
         walker = walk.walkSync(PRIVATE.dir.upload, options);
 
-        console.log("all done");
+//        console.log("all done");
 
         var retr = arr;
 //            _.chain(arr)
