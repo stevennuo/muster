@@ -8,7 +8,7 @@ var fs = require('fs');
 var PRIVATE = require('./config/private')
 
 var AND = ' && ';
-var FFMPEG = ' ' + PRIVATE.dir.ffmpeg + 'ffmpeg ';
+var FFMPEG = ' FFREPORT="file=\''+ PRIVATE.dir.log + 'ffmpeg-$(date +%Y%m%s).log\'" ' + PRIVATE.dir.ffmpeg + 'ffmpeg ';
 
 //前面有可能跟路径不能带空格
 var h = function (d) {
@@ -155,7 +155,9 @@ command = {
 
 
         // output: h.mp4 m.mp4 l.mp4
-        var ret = ffmpeg.input(p) + origin.generate(H, M, L);
+
+        var env = 'FFREPORT="file=\''+ PRIVATE.dir.log + 'ffmpeg-$(date +%Y%m%s).log\'"';
+        var ret = env + ffmpeg.input(p) + origin.generate(H, M, L);
         // output: outputh.mp4 outputm.mp4 outputl.mp4
         ret = ret + this.addOped(A, oe);
         // output: rsync 4 folders
