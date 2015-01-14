@@ -60,11 +60,17 @@
             <th data-column-id="key">文件名</th>
             <th data-column-id="mimeType">文件类型</th>
             <th data-column-id="putTime" data-formatter="time" data-sortable="false">上传到bucket的时间戳</th>
-            <th data-column-id="key" data-formatter="link" data-sortable="false">链接(1小时有效)</th>
+            <th data-column-id="key" data-formatter="link" data-sortable="false" data-header-css-class="customerColumn">链接(1小时有效)</th>
         </tr>
         </thead>
     </table>
 </div>
+<style type="text/css">
+    .customerColumn
+    {
+        width: 400px;
+    }
+</style>
 <script src="components/jquery/dist/jquery.min.js"></script>
 <script src="jQuery-File-Upload/js/vendor/jquery.ui.widget.js"></script>
 <script src="jQuery-File-Upload/js/jquery.iframe-transport.js"></script>
