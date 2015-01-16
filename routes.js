@@ -94,7 +94,7 @@ module.exports = function (app) {
                 ret.files[0].size = file.size;
             }).on('aborted',function () {
                 ret.files.forEach(function (file) {
-                    fs.unlink(file);
+                    fs.unlink(file.path);
                 });
                 // TODO: Exception判断
                 fs.rmdirSync(path.dirname(ret.files[0].path));
