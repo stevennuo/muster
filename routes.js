@@ -94,7 +94,7 @@ module.exports = function (app) {
                 ret.files[0].size = file.size;
             }).on('aborted',function () {
                 ret.files.forEach(function (file) {
-                    fs.unlink(file.path);
+                    fs.unlinkSync(file.path);
                 });
                 // TODO: Exception判断
                 fs.rmdirSync(path.dirname(ret.files[0].path));
@@ -133,7 +133,7 @@ module.exports = function (app) {
         qiniu.rsf.listPrefix(PRIVATE.qiniu.origin.bucket, '', marker, 999999, function (err, ret) {
             if (err) {
                 res.status(500).send(err);
-                throw err;
+                console.log(err);
             } else {
                 // process ret.marker & ret.items
 //            console.log(ret.marker);
