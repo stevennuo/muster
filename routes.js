@@ -42,7 +42,7 @@ var generateInfoURL = function (ver, key) {
 
 var generateCompressScripts = function (path, oped) {
     var cmd = compress.generate(path, oped);
-    console.log(cmd);
+    // console.log(cmd);
     return cmd;
 }
 
@@ -78,13 +78,13 @@ module.exports = function (app) {
         // handle uplaod
         form.on('fileBegin', function (name, file) {
             file.name = file.name.replace(/-/g, "_").replace(/\.[^/.]+$/, "") + '.mp4'
-            console.log(file.name)
+            //console.log(file.name)
             file.path = form.uploadDir + file.name;
 
             ret.files.push({name: file.name, path: file.path});
             if (_existsSync(file.path) || _existsSync(PRIVATE.dir.rsync + 'origin/' + file.name)) {
                 ret.files[0].error = '文件已存在，不能覆盖';
-                console.log(ret.files[0].error);
+                //console.log(ret.files[0].error);
             }
         }).on('field', function (name, value) {
             // 生成片头片尾命令
@@ -101,17 +101,17 @@ module.exports = function (app) {
             console.log('删除文件夹')
         }).on('error', function (e) {
             ret.files[0].error = e;
-            console.log(e);
+            // console.log(e);
         }).on('progress', function (bytesReceived) {
         }).on('end', function () {
             var error = ret.files[0].error;
             res.status(error ? 500 : 201).json(ret);
             if (!error) {
-                console.log(ret.files[0].path)
-                console.log(command);
-                generateCompressScripts(ret.files[0].path, command)
-            } else {
-                console.log('wocao')
+                //console.log(ret.files[0].path)
+                // console.log(command);
+                if (_existsSync(form.uploadDir)) {
+                    generateCompressScripts(ret.files[0].path, command)
+                }
             }
         }).parse(req);
     });

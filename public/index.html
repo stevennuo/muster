@@ -144,11 +144,8 @@
                     $('<p/>').text(file.name + '上传成功').prependTo('#files');
 
                 });
-                $('button.cancel').css('display', 'none')
-                setTimeout(function () {
-                    window.location.reload()
-
-                }, 2000)
+                $('button.cancel').css('display', 'none');
+                $("#compress").bootgrid("reload");
 
             },
             progressall: function (e, data) {
@@ -160,22 +157,25 @@
 //                console.log('all:' + progress);
             },
             fail: function (e, data) {
-                console.log(e)
                 $.each(data.files, function (index, file) {
                     $('<p/>').text(file.name + '上传未成功').prependTo('#files');
 
 
                 });
                 $('button.cancel').css('display', 'none')
-                setTimeout(function () {
-                    window.location.reload()
 
-                }, 2000)
+                $('#compress').bootgrid("reload");
 
                 $('#progress .progress-bar').css(
                         'width',
                         '50%'
-                ).removeClass('progress-bar-success').addClass('progress-bar-danger')
+                ).removeClass('progress-bar-success').addClass('progress-bar-danger');
+                setTimeout(function () {
+                    $('#progress .progress-bar').css(
+                            'width',
+                            '0'
+                    ).removeClass('progress-bar-success').addClass('progress-bar-danger');
+                }, 1000)
 
             }
         });
