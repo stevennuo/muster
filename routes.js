@@ -76,7 +76,7 @@ module.exports = function (app) {
 
 
         // handle uplaod
-        form.on('fileBegin',function (name, file) {
+        form.on('fileBegin', function (name, file) {
             file.name = file.name.replace(/-/g, "_").replace(/\.[^/.]+$/, "") + '.mp4'
             console.log(file.name)
             file.path = form.uploadDir + file.name;
@@ -86,32 +86,34 @@ module.exports = function (app) {
                 ret.files[0].error = '文件已存在，不能覆盖';
                 console.log(ret.files[0].error);
             }
-        }).on('field',function (name, value) {
-                // 生成片头片尾命令
-                command[name] = value;
-            }).on('file',function (name, file) {
+        }).on('field', function (name, value) {
+            // 生成片头片尾命令
+            command[name] = value;
+        }).on('file', function (name, file) {
 //                console.log(file.path);
-                ret.files[0].size = file.size;
-            }).on('aborted',function () {
-                ret.files.forEach(function (file) {
-                    fs.unlinkSync(file.path);
-                });
-                // TODO: Exception判断
-                fs.rmdirSync(path.dirname(ret.files[0].path));
-                console.log('删除文件夹')
-            }).on('error',function (e) {
-                ret.files[0].error = e;
-                console.log(e);
-            }).on('progress',function (bytesReceived) {
-            }).on('end',function () {
-                var error = ret.files[0].error;
-                res.status(error ? 500 : 201).json(ret);
-                if (!error) {
-                    console.log(ret.files[0].path)
-                    console.log(command);
-                    generateCompressScripts(ret.files[0].path, command)
-                }
-            }).parse(req);
+            ret.files[0].size = file.size;
+        }).on('aborted', function () {
+            ret.files.forEach(function (file) {
+                fs.unlinkSync(file.path);
+            });
+            // TODO: Exception判断
+            fs.rmdirSync(path.dirname(ret.files[0].path));
+            console.log('删除文件夹')
+        }).on('error', function (e) {
+            ret.files[0].error = e;
+            console.log(e);
+        }).on('progress', function (bytesReceived) {
+        }).on('end', function () {
+            var error = ret.files[0].error;
+            res.status(error ? 500 : 201).json(ret);
+            if (!error) {
+                console.log(ret.files[0].path)
+                console.log(command);
+                generateCompressScripts(ret.files[0].path, command)
+            } else {
+                console.log('wocao')
+            }
+        }).parse(req);
     });
 
     app.get('/qiniu/link/origin/:key', function (req, res) {
@@ -159,8 +161,7 @@ module.exports = function (app) {
 
     app.post('/video/compressing', function (req, res) {
         // mock
-        var arr = [
-        ];
+        var arr = [];
         var filters = [
             '.DS_Store', 'command',
             'h.list', 'm.list', 'l.list',
@@ -174,10 +175,10 @@ module.exports = function (app) {
                     _.chain(nodeNamesArray)
                         .flatten()
                         .difference(filters)
-                        .reject(function(item){
+                        .reject(function (item) {
                             return (item.length == 14) && (item.indexOf('201') == 0);
                         })
-                        .each(function(item){
+                        .each(function (item) {
                             arr.push({key: item, progress: "compress"})
                         });
                 }, directories: function (root, dirStatsArray, next) {

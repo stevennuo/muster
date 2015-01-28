@@ -8,7 +8,7 @@ var fs = require('fs');
 var PRIVATE = require('./config/private')
 
 var AND = ' && ';
-var FFMPEG = ' FFREPORT="file=\''+ PRIVATE.dir.log + 'ffmpeg-$(date +%Y%m%s).log\'" ' + PRIVATE.dir.ffmpeg + 'ffmpeg ';
+var FFMPEG = ' FFREPORT="file=\'' + PRIVATE.dir.log + 'ffmpeg-$(date +%Y%m%s).log\'" ' + PRIVATE.dir.ffmpeg + 'ffmpeg ';
 
 //前面有可能跟路径不能带空格
 var h = function (d) {
@@ -54,7 +54,7 @@ video = {
     VERYSLOW: 'veryslow',
     param: function (w, h, sw, sh, crf) {
         return '-vf setsar=sar=' + sw + '/' + sh + ',setdar=dar=16/9,scale=' + w + 'x' + h
-            + ' -crf ' + crf +' -pix_fmt yuv420p -c:v libx264 -r 25 -benchmark -threads 0 -preset ' + video.VERYSLOW;
+            + ' -crf ' + crf + ' -pix_fmt yuv420p -c:v libx264 -r 25 -benchmark -threads 0 -preset ' + video.VERYSLOW;
     }
 };
 
@@ -67,7 +67,7 @@ audio = {
 
 origin = {
     ver: function (F, w, h, sw, sh, crf, a, b, vbr) {
-        return  video.param(w, h, sw, sh, crf) + audio.param(a, b, vbr) + F.origin;
+        return video.param(w, h, sw, sh, crf) + audio.param(a, b, vbr) + F.origin;
     },
     generate: function (H, M, L) {
         return this.ver(H, 1280, 720, 1, 1, 18, 48000, 128)
@@ -122,7 +122,7 @@ ffmpeg = {
     input: function (path) {
         return FFMPEG + '-y -i "' + path + '" ';
     },
-    streamCopy: function(F, oped) {
+    streamCopy: function (F, oped) {
         return FFMPEG + '-y -i ' + F.origin + ' -c copy -metadata comment="'
             + oped.metadata() + '" -movflags +faststart ' + F.output;
     }
@@ -141,7 +141,7 @@ command = {
 
     mv: function (A, target, fileName) {
         // origin h
-        var ret = bash.cp(A[0].output, '"'+target + 'origin/' + fileName+'"') + AND;
+        var ret = bash.cp(A[0].output, '"' + target + 'origin/' + fileName + '"') + AND;
         // high/medium/low
         ret = ret + LOOP(A, bash.mvO2T, target, fileName);
         return ret;

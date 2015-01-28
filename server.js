@@ -23,7 +23,7 @@ qiniu.conf.SECRET_KEY = PRIVATE.qiniu.secret_key
 // express
 var app = express()
 app.use(bodyParser.json()); // for parsing application/json
-app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({extended: true})); // for parsing application/x-www-form-urlencoded
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/local/origin', express.static(path.join(PRIVATE.dir.rsync, 'origin')));
 app.use('/local/high', express.static(path.join(PRIVATE.dir.rsync, 'high')));
