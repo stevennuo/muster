@@ -8,7 +8,7 @@ var fs = require('fs');
 var walk = require('walk')
 
 var PRIVATE = require('./config/private')
-
+var async = require('async')
 var _existsSync = fs.existsSync || path.existsSync;
 
 var _ = require('underscore');
@@ -45,7 +45,39 @@ var generateCompressScripts = function (path, oped) {
     // console.log(cmd);
     return cmd;
 }
+var deleteAsync = function(key, cb){
+    var rmQiniu = function(reso, key){
+        var client = new qiniu.rs.Client();
+        client.remove(PRIVATE.qiniu[reso].bucket, key, function(e, ret){
+            if (e) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        });
+    };
 
+    var rmLocal = function(reso, key){
+        var filePath = PRIVATE.dir.rsync + reso + '/' + key;
+        fs.unlink(filePath, function(err){
+            if (err){
+                return false;
+            }
+            else {
+                return true;
+            }
+        });
+    };
+    async.parallel([
+            rmQiniu('high', key),rmQiniu('origin', key),rmQiniu('low', key),rmQiniu('medium', key),
+            rmLocal('high',key),rmLocal('origin',key),rmLocal('low',key),rmLocal('medium',key)
+        ],
+        cb()
+    );
+
+
+}
 module.exports = function (app) {
     // http api
     app.get('/video/opeds', function (req, res) {
@@ -158,7 +190,15 @@ module.exports = function (app) {
             }
         });
     });
+    app.delete('/qiniu/list/:key', function(req, res){
+        var key = req.params.key;
+        deleteAsync(key,function(err){
+            if (err) console.log(err);
+            res.status(200);
+        });
 
+
+    })
     app.post('/video/compressing', function (req, res) {
         // mock
         var arr = [];
