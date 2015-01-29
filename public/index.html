@@ -27,9 +27,11 @@
     <span class="btn btn-success fileinput-button">
         <i class="glyphicon glyphicon-plus"></i>
         <span>选择文件...</span>
+
         <!-- The file input field used as target for the file upload widget -->
         <input id="fileupload" type="file" name="files[]">
     </span>
+    <button class="cancel btn-warning btn" style="display: none">取消上传</button>
     <br>
     <br>
     <!-- The global progress bar -->
@@ -60,14 +62,15 @@
             <th data-column-id="key">文件名</th>
             <th data-column-id="mimeType">文件类型</th>
             <th data-column-id="putTime" data-formatter="time" data-sortable="false">上传到bucket的时间戳</th>
-            <th data-column-id="key" data-formatter="link" data-sortable="false" data-header-css-class="customerColumn">链接(1小时有效)</th>
+            <th data-column-id="key" data-formatter="link" data-sortable="false" data-header-css-class="customerColumn">
+                链接(1小时有效)
+            </th>
         </tr>
         </thead>
     </table>
 </div>
 <style type="text/css">
-    .customerColumn
-    {
+    .customerColumn {
         width: 400px;
     }
 </style>
@@ -90,24 +93,24 @@
                 // Use jQuery's each to iterate over the opts value
                 $.each(data.ops, function (i, d) {
                     if (!d.ops) {
-                        $('#op').append('<option name="' + d.ab + '" duration=' + d.duration +'>' + d.name + '</option>');
+                        $('#op').append('<option name="' + d.ab + '" duration=' + d.duration + '>' + d.name + '</option>');
                     } else {
                         $('#op').append('<option disabled="disabled">----' + d.name + '----</option>');
                         $.each(d.ops, function (i, s) {
-                            $('#op').append('<option name="' + s.ab + '" duration=' + s.duration +'>&nbsp;&nbsp;&nbsp;&nbsp;'
-                                    + s.name + '</option>');
+                            $('#op').append('<option name="' + s.ab + '" duration=' + s.duration + '>&nbsp;&nbsp;&nbsp;&nbsp;'
+                            + s.name + '</option>');
                         });
                     }
                 });
 
                 $.each(data.eds, function (i, d) {
                     if (!d.eds) {
-                        $('#ed').append('<option name="' + d.ab + '" duration=' + d.duration +'>' + d.name + '</option>');
+                        $('#ed').append('<option name="' + d.ab + '" duration=' + d.duration + '>' + d.name + '</option>');
                     } else {
                         $('#ed').append('<option disabled="disabled">----' + d.name + '----</option>');
                         $.each(d.eds, function (i, s) {
-                            $('#ed').append('<option name="' + s.ab + '" duration=' + s.duration +'>&nbsp;&nbsp;&nbsp;&nbsp;'
-                                    + s.name + '</option>');
+                            $('#ed').append('<option name="' + s.ab + '" duration=' + s.duration + '>&nbsp;&nbsp;&nbsp;&nbsp;'
+                            + s.name + '</option>');
                         });
                     }
                 });
@@ -122,20 +125,28 @@
             add: function (e, data) {
                 var opl = document.getElementById("op");
                 var edl = document.getElementById("ed");
-                var op =  opl.options[opl.selectedIndex];
-                var ed =  edl.options[edl.selectedIndex];
+                var op = opl.options[opl.selectedIndex];
+                var ed = edl.options[edl.selectedIndex];
                 data.formData = {
-                    op_name:        op.getAttribute('name'),
-                    op_duration:    op.getAttribute('duration'),
-                    ed_name:        ed.getAttribute('name'),
-                    ed_duration:    ed.getAttribute('duration')
+                    op_name: op.getAttribute('name'),
+                    op_duration: op.getAttribute('duration'),
+                    ed_name: ed.getAttribute('name'),
+                    ed_duration: ed.getAttribute('duration')
                 };
-                data.submit();
+                var jqXHR = data.submit();
+
+                $('button.cancel').css("display", "inline").click(function () {
+                    jqXHR.abort();
+                });
             },
             done: function (e, data) {
                 $.each(data.result.files, function (index, file) {
                     $('<p/>').text(file.name + '上传成功').prependTo('#files');
+
                 });
+                $('button.cancel').css('display', 'none');
+                $("#compress").bootgrid("reload");
+
             },
             progressall: function (e, data) {
                 var progress = parseInt(data.loaded / data.total * 100, 10);
@@ -147,16 +158,30 @@
             },
             fail: function (e, data) {
                 $.each(data.files, function (index, file) {
-                    $('<p/>').text(file.name + '上传失败').prependTo('#files');
+                    $('<p/>').text(file.name + '上传未成功').prependTo('#files');
+
+
                 });
+                $('button.cancel').css('display', 'none')
+
+                $('#compress').bootgrid("reload");
+
                 $('#progress .progress-bar').css(
                         'width',
                         '50%'
-                ).removeClass('progress-bar-success').addClass('progress-bar-danger')
+                ).removeClass('progress-bar-success').addClass('progress-bar-danger');
+                setTimeout(function () {
+                    $('#progress .progress-bar').css(
+                            'width',
+                            '0'
+                    ).removeClass('progress-bar-success').addClass('progress-bar-danger');
+                }, 1000)
+
             }
         });
 
         // 压缩进度
+
         $("#compress").bootgrid({
             navigation: 0,
             ajax: true,
@@ -178,6 +203,7 @@
 
         });
 
+
         // 七牛原片
         $("#qiniu").bootgrid({
             navigation: 0,
@@ -190,12 +216,12 @@
                     return moment(row.putTime / 10000).locale("zh-cn").format('lll');
                 },
                 "link": function (column, row) {
-                    return  '<a href="/qiniu/info/origin/'  + row.key + '" target="_blank"> ' + 'metadata' + ' </a>' +
-                            '<a href="/qiniu/link/origin/'  + row.key + '" target="_blank"> ' + '线上原片' + ' </a>' +
-                            '<a href="/local/origin/'       + row.key + '" target="_blank"> ' + '本地原片' + ' </a>' +
-                            '<a href="/local/high/'         + row.key + '" target="_blank"> ' + '本地高清' + ' </a>' +
-                            '<a href="/local/medium/'       + row.key + '" target="_blank"> ' + '本地中清' + ' </a>' +
-                            '<a href="/local/low/'          + row.key + '" target="_blank"> ' + '本地低清' + ' </a>';
+                    return '<a href="/qiniu/info/origin/' + row.key + '" target="_blank"> ' + 'metadata' + ' </a>' +
+                            '<a href="/qiniu/link/origin/' + row.key + '" target="_blank"> ' + '线上原片' + ' </a>' +
+                            '<a href="/local/origin/' + row.key + '" target="_blank"> ' + '本地原片' + ' </a>' +
+                            '<a href="/local/high/' + row.key + '" target="_blank"> ' + '本地高清' + ' </a>' +
+                            '<a href="/local/medium/' + row.key + '" target="_blank"> ' + '本地中清' + ' </a>' +
+                            '<a href="/local/low/' + row.key + '" target="_blank"> ' + '本地低清' + ' </a>';
                     //防盗链访问不了
 //                            '<a href="http://7u2j9w.com2.z0.glb.qiniucdn.com/' + row.key + '" target="_blank">' + '高清' + '</a>' +
 //                            '<a href="http://7u2j9x.com2.z0.glb.qiniucdn.com/' + row.key + '" target="_blank">' + '中清' + '</a>' +
