@@ -46,34 +46,34 @@ var generateCompressScripts = function (path, oped) {
     return cmd;
 }
 var deleteAsync = function(key, cb){
-    var rmQiniu = function(reso, key){
+    var rmQiniu = function(reso, key,next){
         var client = new qiniu.rs.Client();
         client.remove(PRIVATE.qiniu[reso].bucket, key, function(e, ret){
             if (e) {
-                return false;
+                next(e)
             }
             else {
-                return true;
+                next()
             }
         });
     };
 
-    var rmLocal = function(reso, key){
+    var rmLocal = function(reso, key, next){
         var filePath = PRIVATE.dir.rsync + reso + '/' + key;
         fs.unlink(filePath, function(err){
             if (err){
-                return false;
+                next(err);
             }
             else {
-                return true;
+                next();
             }
         });
     };
     async.parallel([
-            rmQiniu('high', key),rmQiniu('origin', key),rmQiniu('low', key),rmQiniu('medium', key),
-            rmLocal('high',key),rmLocal('origin',key),rmLocal('low',key),rmLocal('medium',key)
+            function(next){rmQiniu('low', key,next)},function(next){rmQiniu('medium', key,next)},function(next){rmQiniu('high', key,next)},function(next){rmQiniu('origin', key,next)},
+            function(next){rmLocal('low',key, next)},function(next){rmLocal('medium',key, next)},function(next){rmLocal('high',key, next)},function(next){rmLocal('origin',key, next)},
         ],
-        cb()
+        cb
     );
 
 
