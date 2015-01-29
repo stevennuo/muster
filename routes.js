@@ -48,11 +48,12 @@ var generateCompressScripts = function (path, oped) {
 var deleteAsync = function(key, cb){
     var rmQiniu = function(reso, key,next){
         var client = new qiniu.rs.Client();
-        client.remove(PRIVATE.qiniu[reso].bucket, key, function(e, ret){
-            if (e) {
-                next(e)
+        client.remove(PRIVATE.qiniu[reso].bucket, key, function(err){
+            if (err) {
+                next(err)
             }
             else {
+                //console.log('a')
                 next()
             }
         });
@@ -65,15 +66,15 @@ var deleteAsync = function(key, cb){
                 next(err);
             }
             else {
+               // console.log('b')
                 next();
             }
         });
     };
     async.parallel([
-            function(next){rmQiniu('low', key,next)},function(next){rmQiniu('medium', key,next)},function(next){rmQiniu('high', key,next)},function(next){rmQiniu('origin', key,next)},
-            function(next){rmLocal('low',key, next)},function(next){rmLocal('medium',key, next)},function(next){rmLocal('high',key, next)},function(next){rmLocal('origin',key, next)},
-        ],
-        cb
+           function(next){rmQiniu('origin', key,next)},function(next){rmQiniu('high', key,next)},function(next){rmQiniu('medium', key,next)},function(next){rmQiniu('low', key,next)},
+            function(next){rmLocal('origin',key, next)},function(next){rmLocal('high',key, next)},function(next){rmLocal('medium',key, next)},function(next){rmLocal('low',key, next)}
+        ], cb
     );
 
 
@@ -193,8 +194,11 @@ module.exports = function (app) {
     app.delete('/qiniu/list/:key', function(req, res){
         var key = req.params.key;
         deleteAsync(key,function(err){
+
             if (err) console.log(err);
             res.status(200);
+            res.end('delete success')
+
         });
 
 
