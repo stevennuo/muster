@@ -60,15 +60,38 @@
         <thead>
         <tr>
             <th data-column-id="key">文件名</th>
-            <th data-column-id="mimeType">文件类型</th>
-            <th data-column-id="putTime" data-formatter="time" data-sortable="false">上传到bucket的时间戳</th>
             <th data-column-id="key" data-formatter="link" data-sortable="false" data-header-css-class="customerColumn">
                 链接(1小时有效)
             </th>
+            <th data-column-id="putTime" data-formatter="time" data-sortable="false">上传到bucket的时间戳</th>
+            <th data-column-id="key" data-formatter="delete" data-sortable="false">删除</th>
         </tr>
         </thead>
     </table>
 </div>
+<div class="modal fade" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">警告</h4>
+            </div>
+            <div class="modal-body">
+                <p>你确定要删除这个文件吗？</p>
+
+                <p></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="notsure" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" id="absolutely" class="btn btn-warning" data-dismiss="modal">确定删除</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 <style type="text/css">
     .customerColumn {
         width: 400px;
@@ -203,7 +226,6 @@
 
         });
 
-
         // 七牛原片
         $("#qiniu").bootgrid({
             navigation: 0,
@@ -226,8 +248,53 @@
 //                            '<a href="http://7u2j9w.com2.z0.glb.qiniucdn.com/' + row.key + '" target="_blank">' + '高清' + '</a>' +
 //                            '<a href="http://7u2j9x.com2.z0.glb.qiniucdn.com/' + row.key + '" target="_blank">' + '中清' + '</a>' +
 //                            '<a href="gttp://7u2j9y.com2.z0.glb.qiniucdn.com/' + row.key + '" target="_blank">' + '低清' + '</a>';
+                },
+                "delete": function (column, row) {
+                    return '<button type="button" class="btn btn-warning delete deleteOrigin" >删除 </button>'
                 }
             }
+        }).on("loaded.rs.jquery.bootgrid", function (e) {
+
+            $('.deleteOrigin').on('click', function (ev) {
+                var key = $(ev.target).parent().parent().children('td:first').text();
+                $('#notsure').focus();
+                $('.modal-body p:last').text('文件名：' + key);
+                $('#myModal').modal({
+                    show: true
+                })
+                $('#absolutely').one('click', function () {
+//                        console.log(key);
+                    $.ajax({
+                        type: "DELETE",
+                        url: '/qiniu/list/' + key,
+                        success: function (data) {
+
+                            $('<p/>').text(key + '  删除成功').prependTo('#files');
+                            $('#qiniu').bootgrid('reload');
+
+
+                        },
+                        error: function (data) {
+                            $('#qiniu').bootgrid('reload')
+                            $('<p/>').text(key + '  删除失败').prependTo('#files');
+
+                        }
+                    });
+
+
+                });
+
+//            $('.deleteOrigin').each(function(i,elem){
+//
+//                $(elem).
+//                    var key =$(elem).parent().parent().children('td:first').text();
+//
+//
+//
+//                });
+//
+//            })
+            });
         });
     });
 </script>
