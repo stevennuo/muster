@@ -15,6 +15,8 @@ var _ = require('underscore');
 var moment = require('moment');
 var formidable = require('formidable');
 
+var chokidar = require('chokidar');
+
 // qiniu
 var qiniu = require('qiniu')
 qiniu.conf.ACCESS_KEY = PRIVATE.qiniu.access_key
@@ -50,8 +52,7 @@ var deleteAsync = function (key, cb) {
         var client = new qiniu.rs.Client();
         client.remove(PRIVATE.qiniu[reso].bucket, key, function (err) {
             if (err) {
-                //console.log(err)
-                next(err);
+                next(err)
             }
             else {
                 //console.log('a')
@@ -65,7 +66,9 @@ var deleteAsync = function (key, cb) {
         fs.unlink(filePath, function (err) {
             if (err) {
                 next(err);
-            } else {
+            }
+            else {
+                // console.log('b')
                 next();
             }
         });
@@ -94,7 +97,42 @@ var deleteAsync = function (key, cb) {
 
 
 }
+
+var deleteList = [];
+
+
 module.exports = function (app) {
+    var testAdd = PRIVATE.dir.rsync + 'low/';
+
+    var watcher = chokidar.watch(testAdd, {ignored: /\.DS_Store/, persistent: true});
+
+    //watcher.add(['/1.txt', '2.txt', '3.txt']);
+    watcher.on('add', function (path) {
+        var testArr = _.map(deleteList, function (item) {
+            return testAdd + item;
+        });
+        var judger = _.find(testArr, function (asis) {
+            return asis === path;
+        });
+
+        if (judger !== undefined) {
+            var delKey = path.replace(/^.*[\/]/, '');
+            deleteAsync(delKey, function (err, result) {
+                if (err) {
+                    console.log(err);
+                }
+                //reserved console log which indicates the delete process
+                console.log('delete success: ' + path);
+                var index = deleteList.indexOf(delKey);
+
+                if (index > -1) {
+                    deleteList.splice(index, 1);
+                }
+            });
+        }
+    });
+
+
     // http api
     app.get('/video/opeds', function (req, res) {
         res.status(200).json(PRIVATE.opeds);
@@ -209,14 +247,23 @@ module.exports = function (app) {
     app.delete('/qiniu/list/:key', function (req, res) {
         var key = req.params.key;
         deleteAsync(key, function (err) {
-            if (err) console.log(err)
+
+            if (err) console.log(err);
             res.status(200);
-            res.end('delete success');
+            res.end('delete success')
 
         });
 
 
-    })
+    });
+
+    app.post('/video/compressing/:key', function (req, res) {
+        deleteList.push(req.params.key);
+        _.uniq(deleteList);
+        res.status(201);
+        res.end('cancel success');
+    });
+
     app.post('/video/compressing', function (req, res) {
         // mock
         var arr = [];
@@ -254,6 +301,10 @@ module.exports = function (app) {
 //        console.log("all done");
 
         var retr = arr;
+        var tempKeys = _.object(deleteList, ['']);
+        var temp = _.filter(retr, function (item) {
+            return !(item.key in tempKeys);
+        });
 //            _.chain(arr)
 //            .sortBy(function (item) {
 //                return item.progress;
@@ -263,8 +314,8 @@ module.exports = function (app) {
         res.status(200).send({
             current: 1,
             rowCount: -1,
-            rows: retr,
+            rows: temp,
             total: 2
         });
-    })
+    });
 }

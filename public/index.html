@@ -48,6 +48,7 @@
         <tr>
             <th data-column-id="key">文件名</th>
             <th data-column-id="progress" data-formatter="progress" data-sortable="false">进度</th>
+            <th data-column-id="key" data-formatter="cancel" data-sortable="false">取消处理</th>
         </tr>
         </thead>
     </table>
@@ -221,11 +222,36 @@
                         default:
                             return '未知状态';
                     }
+                },
+                "cancel": function (column, row) {
+                    return '<button type="button" class="btn btn-warning cancelCompressing" >取消处理 </button>'
                 }
             }
-
+        }).on("loaded.rs.jquery.bootgrid", function (e) {
+            $('.cancelCompressing').on('click', function (ev) {
+                var key = $(ev.target).parent().parent().children('td:first').text();
+                $('#notsure').focus();
+                $('.modal-body p:last').text('文件名：' + key);
+                $('#myModal').modal({
+                    show: true
+                })
+                $('#absolutely').one('click', function () {
+//                        console.log(key);
+                    $.ajax({
+                        type: "POST",
+                        url: '/video/compressing/' + key,
+                        success: function (data) {
+                            $('<p/>').text(key + '  取消成功').prependTo('#files');
+                            $('#compress').bootgrid('reload');
+                        },
+                        error: function (data) {
+                            $('#compress').bootgrid('reload')
+                            $('<p/>').text(key + '  取消失败').prependTo('#files');
+                        }
+                    });
+                });
+            });
         });
-
         // 七牛原片
         $("#qiniu").bootgrid({
             navigation: 0,
@@ -250,11 +276,10 @@
 //                            '<a href="gttp://7u2j9y.com2.z0.glb.qiniucdn.com/' + row.key + '" target="_blank">' + '低清' + '</a>';
                 },
                 "delete": function (column, row) {
-                    return '<button type="button" class="btn btn-warning delete deleteOrigin" >删除 </button>'
+                    return '<button type="button" class="btn btn-warning deleteOrigin" >删除 </button>'
                 }
             }
         }).on("loaded.rs.jquery.bootgrid", function (e) {
-
             $('.deleteOrigin').on('click', function (ev) {
                 var key = $(ev.target).parent().parent().children('td:first').text();
                 $('#notsure').focus();
@@ -268,32 +293,15 @@
                         type: "DELETE",
                         url: '/qiniu/list/' + key,
                         success: function (data) {
-
                             $('<p/>').text(key + '  删除成功').prependTo('#files');
                             $('#qiniu').bootgrid('reload');
-
-
                         },
                         error: function (data) {
                             $('#qiniu').bootgrid('reload')
                             $('<p/>').text(key + '  删除失败').prependTo('#files');
-
                         }
                     });
-
-
                 });
-
-//            $('.deleteOrigin').each(function(i,elem){
-//
-//                $(elem).
-//                    var key =$(elem).parent().parent().children('td:first').text();
-//
-//
-//
-//                });
-//
-//            })
             });
         });
     });
