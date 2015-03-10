@@ -13,7 +13,8 @@ var bodyParser = require('body-parser');
 var config = require('./config/config');
 var express = require('express');
 var path = require('path');
-var PRIVATE = require('./config/private')
+var PRIVATE = require('./config/private');
+var oped = require('./config/oped');
 
 // qiniu
 var qiniu = require('qiniu')
@@ -25,11 +26,11 @@ var app = express()
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({extended: true})); // for parsing application/x-www-form-urlencoded
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/local/origin', express.static(path.join(PRIVATE.dir.rsync, 'origin')));
-app.use('/local/high', express.static(path.join(PRIVATE.dir.rsync, 'high')));
-app.use('/local/medium', express.static(path.join(PRIVATE.dir.rsync, 'medium')));
-app.use('/local/low', express.static(path.join(PRIVATE.dir.rsync, 'low')));
-
+app.use('/local/origin', express.static(path.join(oped.dir.rsync, 'originNew')));
+app.use('/local/high', express.static(path.join(oped.dir.rsync, 'highNew')));
+app.use('/local/medium', express.static(path.join(oped.dir.rsync, 'mediumNew')));
+app.use('/local/low', express.static(path.join(oped.dir.rsync, 'lowNew')));
+app.use('/local/mobile', express.static(path.join(oped.dir.rsync, 'mobileNew')));
 var port = process.env.NODE_PORT || config.port;
 
 // Bootstrap routes
