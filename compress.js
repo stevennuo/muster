@@ -1,206 +1,79 @@
 /**
- * Created by 3er on 1/9/15.
+ * Created by sl on 3/10/15.
  */
 
 var qs = require('querystring');
 var path = require('path');
 var fs = require('fs');
-var PRIVATE = require('./config/private')
+var config = require('./config/oped')
 
-var AND = ' && ';
-var FFMPEG = ' FFREPORT="file=\'' + PRIVATE.dir.log + 'ffmpeg-$(date +%Y%m%s).log\'" ' + PRIVATE.dir.ffmpeg + 'ffmpeg ';
+var FFMPEG = ' FFREPORT="file=\'' + config.dir.log + 'ffmpeg-$(date +%Y%m%s).log\'" ' + config.dir.ffmpeg + 'ffmpeg ';
 
-//前面有可能跟路径不能带空格
-var h = function (d) {
-    return {
-        dir: d,
-        origin: d + '/h.mp4 ',
-        compo: d + '/h.list ',
-        output: d + '/outputh.mp4 ',
-        target: 'high/'
+
+var generateCmd = function (filePath, oped) {
+    console.log(oped);
+    var tv, ta, ifoped;
+    var dir = path.dirname(filePath);
+    var fileName = path.basename(filePath);
+    var ffmpegInput = FFMPEG + '-y -i "' + filePath + '"';
+    console.log(config.dir.oped)
+    var op = config.dir.oped + oped.op_name + '.mp4';
+    var ed = config.dir.oped + oped.ed_name + '.mp4';
+    if (oped.op_name != 'null' || oped.ed_name != 'null') {
+        tv = '[tv]';
+        ta = '[ta]';
+        if (oped.op_name == 'null') {
+            ifoped = 'movie=' + ed + ':s=dv+da[edv][eda];'
+            + '[tempv][a1][edv][eda]concat=n=2:v=1:a=1[tv][ta];'
+        } else if (oped.ed_name == 'null') {
+            ifoped = 'movie=' + op + ':s=dv+da[opv][opa];'
+            + '[opv][opa][tempv][a1]concat=n=2:v=1:a=1[tv][ta];'
+        } else {
+            ifoped = 'movie=' + op + ':s=dv+da[opv][opa];'
+            + 'movie=' + ed + ':s=dv+da[edv][eda];'
+            + '[opv][opa][tempv][a1][edv][eda]concat=n=3:v=1:a=1[tv][ta];'
+        }
+    } else {
+        ifoped = '';
+        tv = '[tempv]';
+        ta = '[a1]';
     }
-};
 
-var m = function (d) {
-    return {
-        dir: d,
-        origin: d + '/m.mp4 ',
-        compo: d + '/m.list ',
-        output: d + '/outputm.mp4 ',
-        target: 'medium/'
-    }
-};
 
-var l = function (d) {
-    return {
-        dir: d,
-        origin: d + '/l.mp4 ',
-        compo: d + '/l.list ',
-        output: d + '/outputl.mp4 ',
-        target: 'low/'
-    }
-};
-
-var LOOP = function (A, f, param1, param2) {
-    var ret = new String();
-    for (var i = 0; i < A.length; i++) {
-        ret = ret + f(A[i], param1, param2) + AND;
-    }
+    var ret = ffmpegInput
+        + ' -filter_complex "movie=' + config.watermark.watermark + '[watermark];'
+        + '[0:v]setsar=sar=1/1,setdar=dar=16/9[vs];'
+        + '[vs]split [v1][v2];[0:a]asplit [a1][a2];'
+        + '[v1][watermark]overlay=main_w-overlay_w-30:main_h-overlay_h-20[tempv];'
+        + ifoped
+        + tv + 'split=4 [tv1][tv2][tv3][tv4];'
+        + ta + 'asplit=4 [ta1][ta2][ta3][ta4]"'
+        + ' -map "[v2]" -map "[a2]" -crf 0 -pix_fmt yuv420p -c:v libx264 -r 25 -s 1280*720 -benchmark -threads 0 -preset veryslow'
+        + ' -c:a libfdk_aac -ar 48000  -b:a 128k ' + config.dir.origin + fileName
+        + ' -map "[tv1]" -map "[ta1]"  -crf 18 -pix_fmt yuv420p -c:v libx264 -r 25 -s 1280*720 -benchmark -threads 0 -preset veryslow'
+        + ' -c:a libfdk_aac -ar 48000  -b:a 128k -movflags +faststart ' + config.dir.high + fileName
+        + ' -map "[tv2]" -map "[ta2]"  -crf 23 -pix_fmt yuv420p -c:v libx264 -r 25 -s 854*480 -benchmark -threads 0 -preset veryslow'
+        + ' -c:a libfdk_aac -ar 44100 -b:a 96k -movflags +faststart ' + config.dir.medium + fileName
+        + ' -map "[tv3]" -map "[ta3]"  -crf 25 -pix_fmt yuv420p -c:v libx264 -profile:v baseline -level 3.0 -r 25 -s 480*270 -benchmark -threads 0 -preset veryslow'
+        + ' -c:a libfdk_aac -ar 22050 -b:a 64k -movflags +faststart ' + config.dir.low + fileName
+        + ' -map "[tv4]" -map "[ta4]" -crf 23 -pix_fmt yuv420p -c:v libx264 -profile:v baseline -level 3.0 -r 25 -s 800*450 -benchmark -threads 0 -preset veryslow'
+        + '  -c:a libfdk_aac -ar 44100 -b:a 96k -movflags +faststart ' + config.dir.mobile + fileName
+        + ' && rm -rf ' + dir;
     return ret;
 };
 
-video = {
-    ULTRAFAST: 'ultrafast',
-    VERYSLOW: 'veryslow',
-    param: function (w, h, sw, sh, crf) {
-        return '-vf setsar=sar=' + sw + '/' + sh + ',setdar=dar=16/9,scale=' + w + 'x' + h
-            + ' -crf ' + crf + ' -pix_fmt yuv420p -c:v libx264 -r 25 -benchmark -threads 0 -preset ' + video.VERYSLOW;
-    }
-};
-
-audio = {
-    param: function (a, b, vbr) {
-        //TODO: vba need compilation
-        return ' -c:a libfdk_aac -ar ' + a + ' -b:a ' + b + 'k ';
-    }
-};
-
-origin = {
-    ver: function (F, w, h, sw, sh, crf, a, b, vbr) {
-        return video.param(w, h, sw, sh, crf) + audio.param(a, b, vbr) + F.origin;
-    },
-    generate: function (H, M, L) {
-        return this.ver(H, 1280, 720, 1, 1, 18, 48000, 128)
-            + this.ver(M, 854, 480, 1280, 1281, 23, 44100, 96)
-            + this.ver(L, 480, 270, 1, 1, 25, 22050, 64) + AND;
-    }
-};
-
-bash = {
-    cp: function (src, dest) {
-        return ' cp ' + src + ' ' + dest + ' ';
-    },
-    mv: function (src, dest) {
-        return ' mv ' + src + ' ' + dest + ' ';
-    },
-    rmDir: function (dir) {
-        return ' rm -rf ' + dir + ' ';
-    },
-    cpO2O: function (F) {
-        return ' cp ' + F.origin + F.output;
-    },
-    mvO2T: function (F, target, fileName) {
-        return ' mv ' + F.output + '"' + target + F.target + fileName + '"';
-    }
-};
-
-var oped = function () {
+exports.oped = function () {
     this.op_name = '';
     this.op_duration = 0;
     this.ed_name = '';
     this.ed_duration = 0;
 };
 
-oped.prototype.metadata = function () {
-    return qs.stringify(this);
-};
-
-exports.oped = oped;
-
-concat = {
-    concat: function (F, oped) {
-        return FFMPEG + '-y -f concat -i ' + F.compo + ' -c copy -metadata comment="'
-            + oped.metadata() + '" -movflags +faststart ' + F.output;
-    },
-
-    cmd: function (A, oped) {
-        return LOOP(A, this.concat, oped);
-    }
-};
-
-ffmpeg = {
-    input: function (path) {
-        return FFMPEG + '-y -i "' + path + '" ';
-    },
-    streamCopy: function (F, oped) {
-        return FFMPEG + '-y -i ' + F.origin + ' -c copy -metadata comment="'
-            + oped.metadata() + '" -movflags +faststart ' + F.output;
-    }
-};
-
-command = {
-
-    addOped: function (A, oe) {
-        if (oe.op_name == 'null' && oe.ed_name == 'null') {
-            return LOOP(A, ffmpeg.streamCopy, oe);
-        }
-        else {
-            return concat.cmd(A, oe);
-        }
-    },
-
-    mv: function (A, target, fileName) {
-        // origin h
-        var ret = bash.cp(A[0].output, '"' + target + 'origin/' + fileName + '"') + AND;
-        // high/medium/low
-        ret = ret + LOOP(A, bash.mvO2T, target, fileName);
-        return ret;
-    },
-
-    all: function (p, oe) {
-        var dir = path.dirname(p);
-        var fileName = path.basename(p);
-        var H = h(dir), M = m(dir), L = l(dir);
-        var A = [H, M, L];
-
-
-        // output: h.mp4 m.mp4 l.mp4
-
-        var ret = ffmpeg.input(p) + origin.generate(H, M, L);
-        // output: outputh.mp4 outputm.mp4 outputl.mp4
-        ret = ret + this.addOped(A, oe);
-        // output: rsync 4 folders
-        ret = ret + this.mv(A, PRIVATE.dir.rsync, fileName);
-        // rm
-        ret = ret + bash.rmDir(dir) + '\n';
-        return ret;
-    }
-};
-
-var file = {
-    content: function (opedDir, inputDir, oe, v) {
-        var f;
-        var VMP4 = v + '.mp4\n';
-        if (oe.op_name != 'null')
-            f = 'file ' + opedDir + oe.op_name + VMP4;
-        else
-            f = ''
-
-        f = f + 'file ' + inputDir + VMP4;
-
-        if (oe.ed_name != 'null')
-            f = f + 'file ' + opedDir + oe.ed_name + VMP4;
-        else
-            f = f;
-        return f;
-    },
-
-    write: function (inputPath, opedDir, oped) {
-        var inputDir = path.dirname(inputPath) + '/';
-        fs.writeFileSync(inputDir + 'h.list', this.content(opedDir, inputDir, oped, 'h'));
-        fs.writeFileSync(inputDir + 'm.list', this.content(opedDir, inputDir, oped, 'm'));
-        fs.writeFileSync(inputDir + 'l.list', this.content(opedDir, inputDir, oped, 'l'));
-    }
-};
 
 exports.generate = function (filePath, oe) {
 //    oe.op_name = 'null'
 //    oe.ed_name = 'null'
-    var cmd = command.all(filePath, oe);
-    if (oe.op_name != 'null' || oe.ed_name != 'null') {
-        file.write(filePath, PRIVATE.dir.oped, oe);
-    }
+    var cmd = generateCmd(filePath, oe);
     fs.writeFileSync(path.dirname(filePath) + '/' + 'command', cmd);
     return cmd;
 };
-

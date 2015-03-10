@@ -5,10 +5,10 @@
 // Since Node 0.8, .existsSync() moved from path to fs:
 var path = require('path');
 var fs = require('fs');
-var walk = require('walk')
-
-var PRIVATE = require('./config/private')
-var async = require('async')
+var walk = require('walk');
+var config = require('./config/oped');
+var PRIVATE = require('./config/private');
+var async = require('async');
 var _existsSync = fs.existsSync || path.existsSync;
 
 var _ = require('underscore');
@@ -62,7 +62,7 @@ var deleteAsync = function (key, cb) {
     };
 
     var rmLocal = function (reso, key, next) {
-        var filePath = PRIVATE.dir.rsync + reso + '/' + key;
+        var filePath = config.dir.rsync + reso + '/' + key;
         fs.unlink(filePath, function (err) {
             if (err) {
                 next(err);
@@ -102,7 +102,7 @@ var deleteList = [];
 
 
 module.exports = function (app) {
-    var testAdd = PRIVATE.dir.rsync + 'low/';
+    var testAdd = config.dir.rsync + 'low/';
 
     var watcher = chokidar.watch(testAdd, {ignored: /\.DS_Store/, persistent: true});
 
@@ -135,11 +135,11 @@ module.exports = function (app) {
 
     // http api
     app.get('/video/opeds', function (req, res) {
-        res.status(200).json(PRIVATE.opeds);
+        res.status(200).json(config.opeds);
     });
 
     app.post('/video/upload', function (req, res) {
-        var dir = PRIVATE.dir;
+        var dir = config.dir;
         // headers
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
@@ -168,7 +168,7 @@ module.exports = function (app) {
             file.path = form.uploadDir + file.name;
 
             ret.files.push({name: file.name, path: file.path});
-            if (_existsSync(file.path) || _existsSync(PRIVATE.dir.rsync + 'origin/' + file.name)) {
+            if (_existsSync(file.path) || _existsSync(config.dir.rsync + 'origin/' + file.name)) {
                 ret.files[0].error = '文件已存在，不能覆盖';
                 //console.log(ret.files[0].error);
             }
@@ -187,6 +187,7 @@ module.exports = function (app) {
             console.log('删除文件夹')
         }).on('error', function (e) {
             ret.files[0].error = e;
+            fs.rmdirSync(path.dirname(ret.files[0].path));
             // console.log(e);
         }).on('progress', function (bytesReceived) {
         }).on('end', function () {
@@ -296,7 +297,7 @@ module.exports = function (app) {
             }
         };
 
-        walker = walk.walkSync(PRIVATE.dir.upload, options);
+        walker = walk.walkSync(config.dir.upload, options);
 
 //        console.log("all done");
 
