@@ -184,7 +184,7 @@ module.exports = function (app) {
             });
             // TODO: Exception判断
             fs.rmdirSync(path.dirname(ret.files[0].path));
-            console.log('删除文件夹')
+            //console.log('删除文件夹')
         }).on('error', function (e) {
             ret.files[0].error = e;
             fs.rmdirSync(path.dirname(ret.files[0].path));

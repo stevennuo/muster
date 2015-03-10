@@ -11,12 +11,10 @@ var FFMPEG = ' FFREPORT="file=\'' + config.dir.log + 'ffmpeg-$(date +%Y%m%s).log
 
 
 var generateCmd = function (filePath, oped) {
-    console.log(oped);
     var tv, ta, ifoped;
     var dir = path.dirname(filePath);
     var fileName = path.basename(filePath);
     var ffmpegInput = FFMPEG + '-y -i "' + filePath + '"';
-    console.log(config.dir.oped)
     var op = config.dir.oped + oped.op_name + '.mp4';
     var ed = config.dir.oped + oped.ed_name + '.mp4';
     if (oped.op_name != 'null' || oped.ed_name != 'null') {
