@@ -75,22 +75,26 @@ var deleteAsync = function (key, cb) {
     };
     async.parallel([
             function (next) {
-                rmQiniu('origin', key, next)
+                rmQiniu('originNew', key, next)
             }, function (next) {
-                rmQiniu('high', key, next)
+                rmQiniu('highNew', key, next)
             }, function (next) {
-                rmQiniu('medium', key, next)
+                rmQiniu('mediumNew', key, next)
             }, function (next) {
-                rmQiniu('low', key, next)
+                rmQiniu('lowNew', key, next)
+            }, function (next) {
+                rmQiniu('mobileNew',key,next)
             },
             function (next) {
-                rmLocal('origin', key, next)
+                rmLocal('originNew', key, next)
             }, function (next) {
-                rmLocal('high', key, next)
+                rmLocal('highNew', key, next)
             }, function (next) {
-                rmLocal('medium', key, next)
+                rmLocal('mediumNew', key, next)
             }, function (next) {
-                rmLocal('low', key, next)
+                rmLocal('lowNew', key, next)
+            },function(next){
+                rmLocal('mobileNew',key,next)
             }
         ], cb
     );
@@ -102,7 +106,7 @@ var deleteList = [];
 
 
 module.exports = function (app) {
-    var testAdd = config.dir.rsync + 'low/';
+    var testAdd = config.dir.rsync + 'lowNew/';
 
     var watcher = chokidar.watch(testAdd, {ignored: /\.DS_Store/, persistent: true});
 
@@ -269,10 +273,7 @@ module.exports = function (app) {
         // mock
         var arr = [];
         var filters = [
-            '.DS_Store', 'command',
-            'h.list', 'm.list', 'l.list',
-            'h.mp4', 'm.mp4', 'l.mp4',
-            'outputh.mp4', 'outputm.mp4', 'outputl.mp4'
+            '.DS_Store', 'command'
         ]
 
         var options = {
