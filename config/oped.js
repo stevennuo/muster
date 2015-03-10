@@ -24,6 +24,11 @@ exports.opeds = {
     // duration为毫秒
     ops: [
         {
+            name: '无片头',
+            ab: 'null',
+            duration: 0
+        },
+        {
             name: '基础片头',
             ab: 'opbasic',
             duration: 4590
@@ -39,17 +44,18 @@ exports.opeds = {
             duration: 6740
         },
         {
-            name: '无片头',
-            ab: 'null',
-            duration: 0
-        },
-        {
             name: '老基础片头',
             ab: 'opoldbasic',
             duration: 4850
         }
     ],
     eds: [
+
+        {
+            name: '无片尾',
+            ab: 'null',
+            duration: 0
+        },
         {
             name: '代数片尾',
             eds: [
@@ -99,11 +105,6 @@ exports.opeds = {
                     duration: 29880
                 }
             ]
-        },
-        {
-            name: '无片尾',
-            ab: 'null',
-            duration: 0
         }
     ]
 };
