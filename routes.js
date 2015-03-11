@@ -172,7 +172,7 @@ module.exports = function (app) {
             file.path = form.uploadDir + file.name;
 
             ret.files.push({name: file.name, path: file.path});
-            if (_existsSync(file.path) || _existsSync(config.dir.rsync + 'origin/' + file.name)) {
+            if (_existsSync(file.path) || _existsSync(config.dir.rsync + 'originNew/' + file.name)) {
                 ret.files[0].error = '文件已存在，不能覆盖';
                 //console.log(ret.files[0].error);
             }
