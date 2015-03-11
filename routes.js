@@ -86,15 +86,15 @@ var deleteAsync = function (key, cb) {
                 rmQiniu('mobile',key,next)
             },
             function (next) {
-                rmLocal('origin', key, next)
+                rmLocal('originNew', key, next)
             }, function (next) {
-                rmLocal('high', key, next)
+                rmLocal('highNew', key, next)
             }, function (next) {
-                rmLocal('medium', key, next)
+                rmLocal('mediumNew', key, next)
             }, function (next) {
-                rmLocal('low', key, next)
+                rmLocal('lowNew', key, next)
             },function(next){
-                rmLocal('mobile',key,next)
+                rmLocal('mobileNew',key,next)
             }
         ], cb
     );
