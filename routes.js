@@ -106,7 +106,7 @@ var deleteList = [];
 
 
 module.exports = function (app) {
-    var testAdd = config.dir.rsync + 'lowNew/';
+    var testAdd = config.dir.rsync + 'mobileNew/';
 
     var watcher = chokidar.watch(testAdd, {ignored: /\.DS_Store/, persistent: true});
 
