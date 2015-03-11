@@ -75,26 +75,26 @@ var deleteAsync = function (key, cb) {
     };
     async.parallel([
             function (next) {
-                rmQiniu('originNew', key, next)
+                rmQiniu('origin', key, next)
             }, function (next) {
-                rmQiniu('highNew', key, next)
+                rmQiniu('high', key, next)
             }, function (next) {
-                rmQiniu('mediumNew', key, next)
+                rmQiniu('medium', key, next)
             }, function (next) {
                 rmQiniu('lowNew', key, next)
             }, function (next) {
-                rmQiniu('mobileNew',key,next)
+                rmQiniu('mobile',key,next)
             },
             function (next) {
-                rmLocal('originNew', key, next)
+                rmLocal('origin', key, next)
             }, function (next) {
-                rmLocal('highNew', key, next)
+                rmLocal('high', key, next)
             }, function (next) {
-                rmLocal('mediumNew', key, next)
+                rmLocal('medium', key, next)
             }, function (next) {
-                rmLocal('lowNew', key, next)
+                rmLocal('low', key, next)
             },function(next){
-                rmLocal('mobileNew',key,next)
+                rmLocal('mobile',key,next)
             }
         ], cb
     );
