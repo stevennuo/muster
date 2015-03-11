@@ -81,7 +81,7 @@ var deleteAsync = function (key, cb) {
             }, function (next) {
                 rmQiniu('medium', key, next)
             }, function (next) {
-                rmQiniu('lowNew', key, next)
+                rmQiniu('low', key, next)
             }, function (next) {
                 rmQiniu('mobile',key,next)
             },
