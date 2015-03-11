@@ -58,9 +58,9 @@ var generateCmd = function (filePath, oped) {
         + '  -c:a libfdk_aac -ar 44100 -b:a 96k -movflags +faststart "outputMo.mp4"'
         + ' && mv outputOri.mp4 '+ config.dir.origin + fileName
         + ' && mv outputH.mp4 ' + config.dir.high + fileName
-        + ' && mv outputM.mp4' + config.dir.medium + fileName
-        + ' && mv outputL.mp4' + config.dir.low + fileName
-        + ' && mv outputMo.mp4' + config.dir.mobile + fileName
+        + ' && mv outputM.mp4 ' + config.dir.medium + fileName
+        + ' && mv outputL.mp4 ' + config.dir.low + fileName
+        + ' && mv outputMo.mp4 ' + config.dir.mobile + fileName
         + ' && rm -rf ' + dir;
     return ret;
 };
