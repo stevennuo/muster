@@ -186,7 +186,6 @@ module.exports = function (app) {
             ret.files.forEach(function (file) {
                 fs.unlinkSync(file.path);
             });
-            // TODO: Exception判断
             fs.rmdirSync(path.dirname(ret.files[0].path));
             //console.log('删除文件夹')
         }).on('error', function (e) {
@@ -202,6 +201,11 @@ module.exports = function (app) {
                 if (_existsSync(form.uploadDir)) {
                     generateCompressScripts(ret.files[0].path, command)
                 }
+            }else{
+                ret.files.forEach(function (file) {
+                    fs.unlinkSync(file.path);
+                });
+                fs.rmdir(path.dirname(ret.files[0].path));
             }
         }).parse(req);
     });
