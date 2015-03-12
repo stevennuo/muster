@@ -181,8 +181,8 @@
 //                console.log('all:' + progress);
             },
             fail: function (e, data) {
-                $.each(data.files, function (index, file) {
-                    $('<p/>').text(file.name + '上传未成功,错误信息：'+ data.files[0].error).prependTo('#files');
+		$.each(data.files, function (index, file) {
+                    $('<p/>').text(file.name + '上传未成功').prependTo('#files');
 
 
                 });

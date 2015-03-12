@@ -194,14 +194,13 @@ module.exports = function (app) {
         }).on('progress', function (bytesReceived) {
         }).on('end', function () {
             var error = ret.files[0].error;
-            res.status(error ? 500 : 201).json(ret);
-            if (!error) {
-                //console.log(ret.files[0].path)
-                // console.log(command);
-                if (_existsSync(form.uploadDir)) {
+	    if (!error) {
+                res.status(201).json(ret);
+		if (_existsSync(form.uploadDir)) {
                     generateCompressScripts(ret.files[0].path, command)
                 }
             }else{
+		res.status(500).json(error);
                 ret.files.forEach(function (file) {
                     fs.unlinkSync(file.path);
                 });
@@ -211,8 +210,6 @@ module.exports = function (app) {
     });
 
     app.get('/qiniu/link/origin/:key', function (req, res) {
-//        console.log(req.param('ver'));
-//        console.log(req.param('key'));
         var l = generateURL(PRIVATE.qiniu['origin'], req.param('key'), qiniu);
         res.redirect(l);
     });
