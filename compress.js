@@ -49,13 +49,13 @@ var generateCmd = function (filePath, oped) {
         + tv + 'split=4 [tv1][tv2][tv3][tv4];'
         + ta + 'asplit=4 [ta1][ta2][ta3][ta4]"'
         + ' -map "[tv1]" -map "[ta1]"  -crf 18 -pix_fmt yuv420p -c:v libx264 -r 25 -s 1280*720 -benchmark -threads 0 -preset veryslow '
-        + ' -c:a libfdk_aac -ar 48000  -b:a 128k -movflags +faststart  "outputH.mp4"'
+        + ' -c:a libfdk_aac -ar 48000  -b:a 128k -metadata comment="' + oped.metadata() + '" -movflags +faststart  "outputH.mp4"'
         + ' -map "[tv2]" -map "[ta2]"  -crf 23 -pix_fmt yuv420p -c:v libx264 -r 25 -s 854*480 -benchmark -threads 0 -preset veryslow '
-        + ' -c:a libfdk_aac -ar 44100 -b:a 96k -movflags +faststart "outputM.mp4"'
+        + ' -c:a libfdk_aac -ar 44100 -b:a 96k -metadata comment="' + oped.metadata() + '" -movflags +faststart "outputM.mp4"'
         + ' -map "[tv3]" -map "[ta3]"  -crf 25 -pix_fmt yuv420p -c:v libx264 -profile:v baseline -level 3.0 -r 25 -s 480*270 -benchmark -threads 0 -preset veryslow '
-        + ' -c:a libfdk_aac -ar 22050 -b:a 64k -movflags +faststart "outputL.mp4"'
+        + ' -c:a libfdk_aac -ar 22050 -b:a 64k -metadata comment="' + oped.metadata() + '" -movflags +faststart "outputL.mp4"'
         + ' -map "[tv4]" -map "[ta4]" -crf 23 -pix_fmt yuv420p -c:v libx264 -profile:v baseline -level 3.0 -r 25 -s 800*450 -benchmark -threads 0 -preset veryslow '
-        + '  -c:a libfdk_aac -ar 44100 -b:a 96k -movflags +faststart "outputMo.mp4"'
+        + '  -c:a libfdk_aac -ar 44100 -b:a 96k -metadata comment="' + oped.metadata() + '" -movflags +faststart "outputMo.mp4"'
         + ' && mv outputOri.mp4 '+ config.dir.origin + fileName
         + ' && mv outputH.mp4 ' + config.dir.high + fileName
         + ' && mv outputM.mp4 ' + config.dir.medium + fileName
@@ -65,13 +65,16 @@ var generateCmd = function (filePath, oped) {
     return ret;
 };
 
-exports.oped = function () {
+var oped = function () {
     this.op_name = '';
     this.op_duration = 0;
     this.ed_name = '';
     this.ed_duration = 0;
 };
-
+oped.prototype.metadata = function () {
+    return qs.stringify(this);
+};
+exports.oped = oped;
 
 exports.generate = function (filePath, oe) {
 //    oe.op_name = 'null'
