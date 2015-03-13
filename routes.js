@@ -217,7 +217,7 @@ module.exports = function (app) {
     app.get('/qiniu/info/origin/:key', function (req, res) {
 //        console.log(req.param('ver'));
 //        console.log(req.param('key'));
-        var l = generateInfoURL(PRIVATE.qiniu['origin'], req.param('key'), qiniu);
+        var l = generateInfoURL(PRIVATE.qiniu['high'], req.param('key'), qiniu);
         res.redirect(l);
     });
 
@@ -234,7 +234,7 @@ module.exports = function (app) {
 
                 var retr = _.chain(ret.items)
                     .sortBy(function (item) {
-                        return item.key
+                        return item.key;
                     })
 //                    .each(function (item) {
 //                        item.link = generateURL(item, qiniu, PRIVATE.origin)
