@@ -229,8 +229,8 @@ module.exports = function (app) {
                 console.log(err);
             } else {
                 // process ret.marker & ret.items
-           console.log(ret.marker);
-           console.log(ret.items);
+//           console.log(ret.marker);
+//          console.log(ret.items);
 
                 var retr = _.chain(ret.items)
                     .sortBy(function (item) {
