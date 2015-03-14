@@ -64,13 +64,16 @@ var generateCmd = function (filePath, oped) {
         + ' && rm -rf ' + dir;
     return ret;
 };
-
-exports.oped = function () {
+var oped = function () {
     this.op_name = '';
     this.op_duration = 0;
     this.ed_name = '';
     this.ed_duration = 0;
 };
+oped.prototype.metadata = function () {
+    return qs.stringify(this);
+};
+exports.oped = oped;
 
 
 exports.generate = function (filePath, oe) {
