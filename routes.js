@@ -16,13 +16,14 @@ var moment = require('moment');
 var formidable = require('formidable');
 
 var chokidar = require('chokidar');
-
+var checklist = require('./checkVideoUrl').checklist;
+var replace = require('./checkVideoUrl').replace;
 // qiniu
 var qiniu = require('qiniu')
 qiniu.conf.ACCESS_KEY = PRIVATE.qiniu.access_key
 qiniu.conf.SECRET_KEY = PRIVATE.qiniu.secret_key
 
-var compress = require('./compress')
+var compress = require('./compress');
 
 var generateURL = function (ver, key) {
     var deadline = Math.floor(Date.now() / 1000) + ver.expiration;
@@ -135,7 +136,29 @@ module.exports = function (app) {
             });
         }
     });
+    app.get('/checklist', function (req, res) {
+        checklist(function (err, data) {
+            if (err) {res.status(500).json(err);}
+            else {
+                res.status(200).json(data);
+            }
+        })
 
+    });
+    app.post('/replace', function (req, res) {
+        var data = req.body;
+        replace(data, function (err) {
+            if (err) {
+                res.status(500);
+                res.end();
+            }
+            else {
+                res.status(200);
+                res.end();
+            }
+
+        })
+    })
 
     // http api
     app.get('/video/opeds', function (req, res) {
@@ -208,6 +231,7 @@ module.exports = function (app) {
             }
         }).parse(req);
     });
+
 
     app.get('/qiniu/link/origin/:key', function (req, res) {
         var l = generateURL(PRIVATE.qiniu['origin'], req.param('key'), qiniu);

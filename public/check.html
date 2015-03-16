@@ -2,9 +2,94 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title></title>
+    <title>check video url</title>
+    <link href="components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"/>
 </head>
 <body>
+<h1>视频有效性链接验证＋替换</h1>
 
+<div>
+    <button class="btn btn-default" id="getBadLink">获取坏链接</button>
+    <span id="status"></span>
+
+    <table id="videoList" class="table table-bordered table-striped">
+        <colgroup>
+            <col class="col-xs-5">
+            <col class="col-xs-5">
+            <col clsss="col-xs-2">
+        </colgroup>
+        <thead>
+        <tr>
+            <th>坏链接</th>
+            <th>替换链接</th>
+            <th>替换</th>
+        </tr>
+        </thead>
+        <tbody id="urlList">
+        <tr>
+        </tr>
+        </tbody>
+    </table>
+    <script src="components/jquery/dist/jquery.min.js"></script>
+    <script>
+        var videoList = [];
+        function replace(i) {
+            var id = videoList[i].id;
+            var key = videoList[i].key;
+            var replaceUrl = $('#replaceUrl' + i).val();
+            var data = {
+                id: id,
+                key: key,
+                replaceUrl: replaceUrl
+            };
+            console.log(data)
+            $.ajax({
+                type: 'POST',
+                url: '/replace',
+                data: data,
+                success: function (data) {
+                    $('#replaceStatus' + i).text("替换成功");
+                },
+                error: function (data) {
+                    $('#replaceStatus' + i).text("替换失败");
+                }
+
+            })
+        }
+        $(document).ready(function () {
+            $("#getBadLink").on('click', function () {
+                $("#status").text("载入中。。。点一次就够了，有点慢，别着急啊！！")
+                $.ajax({
+                    type: 'GET',
+                    url: '/checklist/',
+                    success: function (data) {
+                        $('#urlList').html("<tr></tr>")
+                        for (var i = 0; i < data.list.length; i++) {
+                            console.log(data.list[i].url);
+                            videoList.push(data.list[i]);
+                            $('#urlList').append(
+                                    '<tr>'
+                                    + '<td class = "badLink">'
+                                    + '<p>url:' + data.list[i].url + '</p>'
+                                    + '<p>id:' + data.list[i].id + '</p>'
+                                    + '<p>定位:  ' + data.list[i].location + '</p>'
+                                    + '</td>'
+                                    + '<td><input id ="replaceUrl' + i + '" type="text" class="form-control" placeholder="替换链接"></td>'
+                                    + '<td><button class="btn btn-default replace" onclick = "replace(' + i + ')">点击替换</button>'
+                                    + '<p id="replaceStatus' + i + '"></p>'
+                                    + '</td>'
+                                    + '</tr>'
+                            )
+                        }
+                        $("#status").text("数据库里一共有" + data.totalSum + "个视频，其中有" + data.badLinkSum + "个无效链接");
+                    },
+                    error: function () {
+                        $("#status").text("载入失败，请重新获取链接")
+                    }
+                })
+            })
+        });
+
+    </script>
 </body>
 </html>
