@@ -15,7 +15,7 @@ exports.dir = {
     mobile: "/home/master/rsync/mobileNew/"
 }
 exports.watermark = {
-    watermark: '/home/master/oped/watermark.png'
+    watermark: '/home/master/watermark/watermark.png'
 }
 
 exports.opeds = {
