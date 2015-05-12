@@ -12,7 +12,13 @@ exports.dir = {
     high: "/home/master/rsync/highNew/",
     medium: "/home/master/rsync/mediumNew/",
     low: "/home/master/rsync/lowNew/",
-    mobile: "/home/master/rsync/mobileNew/"
+    mobile: "/home/master/rsync/mobileNew/",
+    /*市场推广视频*/
+    mkthigh:"/home/master/market/outH/",
+    mktmedium:"/home/master/market/outM/",
+    mktlow:"/home/master/market/outL",
+    mktop:"/home/master/market/op.mp4",
+    mkted:"/home/master/market/ed.mp4"
 }
 exports.watermark = {
     watermark: '/home/master/watermark/watermark.png'
