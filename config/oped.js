@@ -16,7 +16,7 @@ exports.dir = {
     /*市场推广视频*/
     mkthigh:"/home/master/market/outH/",
     mktmedium:"/home/master/market/outM/",
-    mktlow:"/home/master/market/outL",
+    mktlow:"/home/master/market/outL/",
     mktop:"/home/master/market/op.mp4",
     mkted:"/home/master/market/ed.mp4"
 }
