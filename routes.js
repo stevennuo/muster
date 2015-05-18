@@ -190,7 +190,13 @@ module.exports = function (app) {
 
         // handle uplaod
         form.on('fileBegin', function (name, file) {
-            file.name = file.name.replace(/-/g, "_").replace(/\.[^/.]+$/, "") + '.mp4'
+            var filter = new RegExp("[~!@#$^&*()=|{}':;',\\[\\].<>/?]");
+            file.name = file.name.replace(/\.[^/.]+$/g, '').replace(/-/g, "_").replace(/\s+/g,'');
+            if(filter.test(file.name)){
+                ret.error = '视频名不能包含英文标点、括号（可以用中文输入法的标点，括号等）';
+                res.status(500).json({error:ret.error});
+            }
+            file.name = file.name + '.mp4';
             //console.log(file.name)
             file.path = form.uploadDir + file.name;
 
