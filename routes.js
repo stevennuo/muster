@@ -193,8 +193,7 @@ module.exports = function (app) {
             var filter = new RegExp("[~!@#$^&*()=|{}':;',\\[\\].<>/?]");
             file.name = file.name.replace(/\.[^/.]+$/g, '').replace(/-/g, "_").replace(/\s+/g,'');
             if(filter.test(file.name)){
-                ret.error = '视频名不能包含英文标点、括号（可以用中文输入法的标点，括号等）';
-                res.status(500).json({error:ret.error});
+                ret.files[0].error = '视频名不能包含英文标点、括号（可以用中文输入法的标点，括号等）';
             }
             file.name = file.name + '.mp4';
             //console.log(file.name)
@@ -224,17 +223,17 @@ module.exports = function (app) {
         }).on('end', function () {
             var error = ret.files[0].error;
 	    if (!error) {
-                res.status(201).json(ret);
-		if (_existsSync(form.uploadDir)) {
-                    generateCompressScripts(ret.files[0].path, command)
-                }
-            }else{
-		res.status(500).json(error);
-                ret.files.forEach(function (file) {
-                    fs.unlinkSync(file.path);
-                });
-                fs.rmdir(path.dirname(ret.files[0].path));
+            res.status(201).json(ret);
+            if (_existsSync(form.uploadDir)) {
+                generateCompressScripts(ret.files[0].path, command)
             }
+        }else{
+            ret.files.forEach(function (file) {
+                fs.unlinkSync(file.path);
+            });
+            fs.rmdir(path.dirname(ret.files[0].path));
+            res.status(500).json(error);
+        }
         }).parse(req);
     });
 
@@ -303,7 +302,8 @@ module.exports = function (app) {
         // mock
         var arr = [];
         var filters = [
-            '.DS_Store', 'command','outputOri.mp4','outputH.mp4','outputL.mp4','outputM.mp4','outputMo.mp4'
+            '.DS_Store', 'command','outputOri.mp4','outputH.mp4','outputL.mp4','outputM.mp4','outputMo.mp4','mktoutputH.mp4',
+            'mktoutputL.mp4',"mktoutputM.mp4"
         ]
 
         var options = {
