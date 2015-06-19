@@ -191,7 +191,7 @@ module.exports = function (app) {
         // handle uplaod
         form.on('fileBegin', function (name, file) {
             var filter = new RegExp("[~!@#$^&*()=|{}':;',\\[\\].<>/?]");
-            file.name = file.name.replace(/\.[^/.]+$/g, '').replace(/-/g, "_").replace(/\s+/g,'');
+            file.name = file.name.replace(/-/g, "_").replace(/\s+/g,'');
             if(filter.test(file.name)){
                 ret.files[0].error = '视频名不能包含英文标点、括号（可以用中文输入法的标点，括号等）';
             }
