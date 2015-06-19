@@ -191,9 +191,9 @@ module.exports = function (app) {
         // handle uplaod
         form.on('fileBegin', function (name, file) {
             var filter = new RegExp("[~!@#$^&*()=|{}':;',\\[\\].<>/?]");
-            file.name = file.name.replace(/-/g, "_").replace(/\s+/g,'');
+            file.name = file.name.replace(/-/g, "_").replace(/\s+/g,'').replace(/\.[^/.]+$/g, '').replace(/\./,'_');
             if(filter.test(file.name)){
-                ret.files[0].error = '视频名不能包含英文标点、括号（可以用中文输入法的标点，括号等）';
+                ret.error = '视频名不能包含英文标点、括号（可以用中文输入法的标点，括号等）';
             }
             file.name = file.name + '.mp4';
             //console.log(file.name)
@@ -201,8 +201,8 @@ module.exports = function (app) {
 
             ret.files.push({name: file.name, path: file.path});
             if (_existsSync(file.path) || _existsSync(config.dir.rsync + 'originNew/' + file.name)) {
-                ret.files[0].error = '文件已存在，不能覆盖';
-                //console.log(ret.files[0].error);
+                ret.error = '文件已存在，不能覆盖';
+                //console.log(ret.error);
             }
         }).on('field', function (name, value) {
             // 生成片头片尾命令
@@ -217,11 +217,11 @@ module.exports = function (app) {
             fs.rmdirSync(path.dirname(ret.files[0].path));
             //console.log('删除文件夹')
         }).on('error', function (e) {
-            ret.files[0].error = e;
+            ret.error = e;
             // console.log(e);
         }).on('progress', function (bytesReceived) {
         }).on('end', function () {
-            var error = ret.files[0].error;
+            var error = ret.error;
 	    if (!error) {
             res.status(201).json(ret);
             if (_existsSync(form.uploadDir)) {
