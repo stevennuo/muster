@@ -21,7 +21,7 @@ exports.dir = {
     mkted:"/home/master/market/ed.mp4"
 }
 exports.watermark = {
-    watermark: '/home/master/oped/watermark.png'
+    watermark: '/home/master/watermark/watermark.png'
 }
 
 exports.opeds = {
