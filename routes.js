@@ -303,7 +303,7 @@ module.exports = function (app) {
         // mock
         var arr = [];
         var filters = [
-            '.DS_Store', 'command','outputOri.mp4','outputH.mp4','outputL.mp4','outputM.mp4','outputMo.mp4'
+            '.DS_Store', 'command','outputOri.mp4','outputH.mp4','outputL.mp4','outputM.mp4','outputMo.mp4','mktoutputH.mp4','mktoutputL.mp4',"mktoutputM.mp4"
         ]
 
         var options = {
