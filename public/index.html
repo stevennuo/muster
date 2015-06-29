@@ -15,16 +15,10 @@
             width: 400px
         }
         .link {
-            width: 450px;
-        }
-        .puttime{
-            width:100px;
+            width: 350px;
         }
         .duration{
-            width:100px;
-        }
-        .duration{
-            width:80px;
+            width:120px;
         }
     </style>
 </head>
@@ -300,7 +294,7 @@
                         second %= 60;
                     }
                     if (second > 0) {
-                        time += second + '秒';
+                        time += Math.round(second) + '秒';
                     }
                     return time;
                 },
