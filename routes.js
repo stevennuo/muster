@@ -10,7 +10,7 @@ var config = require('./config/oped');
 var PRIVATE = require('./config/private');
 var async = require('async');
 var _existsSync = fs.existsSync || path.existsSync;
-
+var ffmpeg = require('fluent-ffmpeg')
 var _ = require('underscore');
 var moment = require('moment');
 var formidable = require('formidable');
@@ -260,21 +260,26 @@ module.exports = function (app) {
                 // process ret.marker & ret.items
 //           console.log(ret.marker);
 //          console.log(ret.items);
-
-                var retr = _.chain(ret.items)
-                    .sortBy(function (item) {
-                        return item.key;
+                async.each(ret.items,function(item,next){
+                    var source = config.dir.rsync + 'originNew/'+item.key
+                    ffmpeg.ffprobe(source,function(err,metadata){
+                        item.duration = metadata.format.duration
+                        next()
                     })
-//                    .each(function (item) {
-//                        item.link = generateURL(item, qiniu, PRIVATE.origin)
-//                    })
-                    .value();
-                res.status(200).send({
-                    current: 1,
-                    rowCount: -1,
-                    rows: retr,
-                    total: retr.length
-                });
+                },function(err){
+                    var retr = _.chain(ret.items)
+                        .sortBy(function (item) {
+                            return item.key;
+                        })
+                        .value();
+                    res.status(200).send({
+                        current: 1,
+                        rowCount: -1,
+                        rows: retr,
+                        total: retr.length
+                    });
+                })
+
             }
         });
     });

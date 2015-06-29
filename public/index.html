@@ -10,6 +10,23 @@
     <script src="components/modernizr/modernizr.js"></script>
     <script src="components/moment/min/moment.min.js"></script>
     <script src="components/moment/min/moment-with-locales.js"></script>
+    <style type="text/css">
+        .name {
+            width: 400px
+        }
+        .link {
+            width: 450px;
+        }
+        .puttime{
+            width:100px;
+        }
+        .duration{
+            width:100px;
+        }
+        .duration{
+            width:80px;
+        }
+    </style>
 </head>
 <body>
 <div>
@@ -60,12 +77,15 @@
     <table id="qiniu" class="table table-condensed table-hover table-striped">
         <thead>
         <tr>
-            <th data-column-id="key">文件名</th>
-            <th data-column-id="key" data-formatter="link" data-sortable="false" data-header-css-class="customerColumn">
-                链接(1小时有效)
+            <th data-column-id="key" data-header-css-class="name">文件名</th>
+            <th data-column-id="key" data-formatter="link" data-sortable="false" data-header-css-class="link">
+                链接
             </th>
-            <th data-column-id="putTime" data-formatter="time" data-sortable="false">上传到bucket的时间戳</th>
-            <th data-column-id="key" data-formatter="delete" data-sortable="false">删除</th>
+            <th data-column-id="putTime" data-formatter="time" data-sortable="false"data-header-css-class="putTime">上传时间</th>
+            <th data-column-id="key" data-formatter="duration" data-sortable="false" data-header-css-class="duration">
+                原片时长
+            </th>
+            <th data-column-id="key" data-formatter="delete" data-header-css-class="delete" data-sortable="false">删除</th>
         </tr>
         </thead>
     </table>
@@ -93,11 +113,7 @@
     <!-- /.modal-dialog -->
 </div>
 <!-- /.modal -->
-<style type="text/css">
-    .customerColumn {
-        width: 600px;
-    }
-</style>
+
 <script src="components/jquery/dist/jquery.min.js"></script>
 <script src="jQuery-File-Upload/js/vendor/jquery.ui.widget.js"></script>
 <script src="jQuery-File-Upload/js/jquery.iframe-transport.js"></script>
@@ -267,14 +283,26 @@
                     return '<a href="/qiniu/info/origin/' + row.key + '" target="_blank"> ' + 'metadata' + ' </a>' +
                             '<a href="/qiniu/link/origin/' + row.key + '" target="_blank"> ' + '线上原片' + ' </a>' +
                             '<a href="/local/origin/' + row.key + '" target="_blank"> ' + '本地原片' + ' </a>' +
-                            '<a href="/local/high/' + row.key + '" target="_blank"> ' + '本地高清' + ' </a>' +
-                            '<a href="/local/medium/' + row.key + '" target="_blank"> ' + '本地中清' + ' </a>' +
-                            '<a href="/local/low/' + row.key + '" target="_blank"> ' + '本地低清' + ' </a>' +
-                            '<a href="/local/mobile/' + row.key + '" target="_blank"> ' + '本地手机中清' + ' </a>';
+                            '<a href="/local/high/' + row.key + '" target="_blank"> ' + '高清' + ' </a>' +
+                            '<a href="/local/medium/' + row.key + '" target="_blank"> ' + '中清' + ' </a>' +
+                            '<a href="/local/low/' + row.key + '" target="_blank"> ' + '低清' + ' </a>' +
+                            '<a href="/local/mobile/' + row.key + '" target="_blank"> ' + '手机中清' + ' </a>';
                     //防盗链访问不了
 //                            '<a href="http://7u2j9w.com2.z0.glb.qiniucdn.com/' + row.key + '" target="_blank">' + '高清' + '</a>' +
 //                            '<a href="http://7u2j9x.com2.z0.glb.qiniucdn.com/' + row.key + '" target="_blank">' + '中清' + '</a>' +
 //                            '<a href="gttp://7u2j9y.com2.z0.glb.qiniucdn.com/' + row.key + '" target="_blank">' + '低清' + '</a>';
+                },
+                "duration": function(column,row){
+                    var second = row.duration;
+                    var time = ''
+                    if (second >= 60) {
+                        time += parseInt(second / 60) + '分钟';
+                        second %= 60;
+                    }
+                    if (second > 0) {
+                        time += second + '秒';
+                    }
+                    return time;
                 },
                 "delete": function (column, row) {
                     return '<button type="button" class="btn btn-warning deleteOrigin" >删除 </button>'
