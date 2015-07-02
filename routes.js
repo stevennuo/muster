@@ -14,7 +14,6 @@ var ffmpeg = require('fluent-ffmpeg')
 var _ = require('underscore');
 var moment = require('moment');
 var formidable = require('formidable');
-
 var chokidar = require('chokidar');
 var checklist = require('./checkVideoUrl').checklist;
 var replace = require('./checkVideoUrl').replace;
@@ -354,4 +353,30 @@ module.exports = function (app) {
             total: 2
         });
     });
+    //var request = require('request');//gai
+    app.get('/timelist',function(req, res){
+        qiniu.rsf.listPrefix(PRIVATE.qiniu.origin.bucket, '', null, 999999, function (err, ret) {
+            if (err) {
+                res.status(500).send(err);
+                console.log(err);
+            } else {
+                var timeList='';
+                async.each(ret.items,function(item,next){
+                    var source = config.dir.rsync + 'originNew/'+item.key
+                    //shan
+                    ffmpeg.ffprobe(source,function(err,metadata){
+                    /*var url = generateInfoURL(PRIVATE.qiniu['high'], item.key, qiniu);
+                    request(url,function(err, response , body){
+                        var metadata = JSON.parse(body)
+                        //删上面3行*/
+                        timeList += item.key+','+metadata.format.duration+"\n"
+                        next()
+                    })
+                },function(err){
+                     res.set('Content-Type', 'text/csv')
+                     res.status(200).send(timeList)
+                })
+            }
+        });
+    })
 }
